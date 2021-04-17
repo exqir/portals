@@ -1,0 +1,41 @@
+{
+  "name": "@portals/core",
+  "version": "0.0.1",
+  "description": "Core functionality to render React Components into portals. ",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exqir/portals.git",
+    "directory": "packages/core"
+  },
+  "author": "exqir <malte.sellmer@me.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
+    "build": "tsdx build --tsconfig tsconfig.build.json",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepublish": "npm run build"
+  },
+  "main": "dist/index.js",
+  "module": "dist/core.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "README.md",
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "dependencies": {
+    "@portals/tools": "^0.0.1",
+    "use-asset": "^1.0.4",
+    "use-subscription": "1.5.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/use-subscription": "^1.0.0"
+  }
+}

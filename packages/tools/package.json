@@ -1,0 +1,33 @@
+{
+  "name": "@portals/tools",
+  "version": "0.0.1",
+  "description": "Tools to help build common parts of portals.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exqir/portals.git",
+    "directory": "packages/tools"
+  },
+  "author": "exqir <malte.sellmer@me.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
+    "build": "tsdx build --tsconfig tsconfig.build.json",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepublish": "npm run build"
+  },
+  "main": "dist/index.js",
+  "module": "dist/tools.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "README.md",
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
