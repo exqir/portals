@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Playground</title>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <module-one></module-one>
+    <module-two></module-two>
+    <module-view name="one">
+      <template>
+        <p>View one children outside of module</p>
+        <module-one></module-one>
+      </template>
+    </module-view>
+    <module-view name="two">
+      <p>View two children outside of module</p>
+      <module-two></module-two>
+    </module-view>
+    <script src="./entry.tsx"></script>
+  </body>
+</html>

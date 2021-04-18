@@ -2,6 +2,8 @@ export type {
   IBootstrapOptions,
   IPreload,
   IProvider,
+  IModuleDefinition,
+  IOnInitHook,
 } from './types/definitions'
 
 // TODO: This should rather be available as @protals/core/provider instead
