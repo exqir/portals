@@ -17,7 +17,7 @@ export function createProvider<Props, Payload>({
   if (isFunction(preload)) {
     const p = createPreload(preload)
 
-    const PreloadProvider = (props: Props & { children: ReactNode }) => {
+    const PreloadProvider: IProvider<Props> = (props) => {
       return (
         <Suspense fallback={null}>
           <Component {...props} preload={p} />

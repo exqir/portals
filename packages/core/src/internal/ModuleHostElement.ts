@@ -89,6 +89,6 @@ function isNestedModule(element: ModuleHostElement): boolean {
 // Could be used for IE to determine if ModuleHostElement is in a template
 // tag and should therefore skip initialisation.
 // Templates would also need to be hiden early in IE.
-function isTemplate(element: ModuleHostElement): boolean {
-  return element.closest('template') !== null
-}
+// function isTemplate(element: ModuleHostElement): boolean {
+//   return element.closest('template') !== null
+// }

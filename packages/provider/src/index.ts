@@ -17,6 +17,7 @@ export const AppProvider: IProvider = combineProvider([
 ]);
 
 export const ModuleProvider: IProvider = combineProvider([
+  // @ts-ignore
   ConfigProvider,
   I18nProvider
 ]);

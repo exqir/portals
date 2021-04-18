@@ -23,5 +23,5 @@ export function NoopProvider({
 }: {
   children: ReactNode
 }): ReactElement | null {
-  return children ?? null
+  return (children as ReactElement) ?? null
 }

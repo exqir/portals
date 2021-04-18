@@ -1,4 +1,8 @@
-export * from './types/definitions'
+export type {
+  IBootstrapOptions,
+  IPreload,
+  IProvider,
+} from './types/definitions'
 
 // TODO: This should rather be available as @protals/core/provider instead
 // of directly from @portals/core.

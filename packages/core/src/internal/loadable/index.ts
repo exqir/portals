@@ -21,6 +21,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 // https://github.com/jamiebuilds/react-loadable/blob/v5.5.0/src/index.js
 // Modified to be compatible with webpack 4 / Next.js
 
+// TODO
+// @ts-nocheck
 import React from 'react'
 import { useSubscription } from 'use-subscription'
 import { LoadableContext } from './loadable-context'
@@ -39,12 +41,12 @@ function load(loader) {
   }
 
   state.promise = promise
-    .then((loaded) => {
+    .then(loaded => {
       state.loading = false
       state.loaded = loaded
       return loaded
     })
-    .catch((err) => {
+    .catch(err => {
       state.loading = false
       state.error = err
       throw err
@@ -63,7 +65,7 @@ function loadMap(obj) {
   let promises = []
 
   try {
-    Object.keys(obj).forEach((key) => {
+    Object.keys(obj).forEach(key => {
       let result = load(obj[key])
 
       if (!result.loading) {
@@ -76,10 +78,10 @@ function loadMap(obj) {
       promises.push(result.promise)
 
       result.promise
-        .then((res) => {
+        .then(res => {
           state.loaded[key] = res
         })
-        .catch((err) => {
+        .catch(err => {
           state.error = err
         })
     })
@@ -88,11 +90,11 @@ function loadMap(obj) {
   }
 
   state.promise = Promise.all(promises)
-    .then((res) => {
+    .then(res => {
       state.loading = false
       return res
     })
-    .catch((err) => {
+    .catch(err => {
       state.loading = false
       throw err
     })
@@ -149,7 +151,7 @@ function createLoadableComponent(loadFn, options) {
     typeof opts.webpack === 'function'
   ) {
     const moduleIds = opts.webpack()
-    READY_INITIALIZERS.push((ids) => {
+    READY_INITIALIZERS.push(ids => {
       for (const moduleId of moduleIds) {
         if (ids.indexOf(moduleId) !== -1) {
           return init()
@@ -173,7 +175,7 @@ function createLoadableComponent(loadFn, options) {
     )
 
     if (context && Array.isArray(opts.modules)) {
-      opts.modules.forEach((moduleName) => {
+      opts.modules.forEach(moduleName => {
         context(moduleName)
       })
     }
@@ -252,7 +254,7 @@ class LoadableSubscription {
         this._update({})
         this._clearTimeouts()
       })
-      .catch((_err) => {
+      .catch(_err => {
         this._update({})
         this._clearTimeouts()
       })
@@ -267,7 +269,7 @@ class LoadableSubscription {
       loading: this._res.loading,
       ...partial,
     }
-    this._callbacks.forEach((callback) => callback())
+    this._callbacks.forEach(callback => callback())
   }
 
   _clearTimeouts() {
@@ -323,7 +325,7 @@ Loadable.preloadAll = () => {
 }
 
 Loadable.preloadReady = (ids = []) => {
-  return new Promise((resolvePreload) => {
+  return new Promise(resolvePreload => {
     const res = () => {
       initialized = true
       return resolvePreload()

@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "description": "Portals based React framework",
   "repository": "https://github.com/exqir/portals.git",
-  "author": "exqir <malte.sellmer@me.com>",
+  "author": "Malte Sellmer",
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "build": "yarn workspaces run build",

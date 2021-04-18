@@ -90,7 +90,9 @@ export function ViewProvider({ children }: ViewProviderProps) {
         setViewState((vs) => ({ active: vs.active, next: null }));
       } else {
         if (status === NAVIGATION_STATUS.SUCCESS) {
+          // @ts-ignore
           setViewState((vs) => {
+            // @ts-ignore
             setActiveLocationView(history, vs.next);
             return { active: vs.next, next: null };
           });

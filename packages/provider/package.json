@@ -7,7 +7,7 @@
     "url": "git+https://github.com/exqir/portals.git",
     "directory": "packages/provider"
   },
-  "author": "exqir <malte.sellmer@me.com>",
+  "author": "Malte Sellmer",
   "license": "MIT",
   "scripts": {
     "start": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
