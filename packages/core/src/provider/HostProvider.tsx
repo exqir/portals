@@ -1,7 +1,5 @@
-import { createContext } from '@portals/tools'
-
 import type { ModuleHostElement } from '../internal/ModuleHostElement'
-
+import { createContext } from '../createProvider'
 interface IHostContext {
   host: ModuleHostElement
 }

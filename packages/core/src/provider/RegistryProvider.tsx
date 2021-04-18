@@ -1,7 +1,5 @@
-import { createContext } from '@portals/tools'
-
 import type { IRegistry } from '../types/definitions'
-
+import { createContext } from '../createProvider'
 interface IRegistryContext {
   registry: IRegistry
 }
