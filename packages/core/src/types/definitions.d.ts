@@ -31,6 +31,7 @@ export interface IProviderOptions<Props = unknown, Payload = unknown> {
   preload?: IPreloadFunction<Payload>
 }
 
+export { IPreload }
 export interface IProvider<Props = unknown> {
   (
     props: Props & { preload?: IPreload; children: ReactNode },

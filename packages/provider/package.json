@@ -1,11 +1,11 @@
 {
-  "name": "@portals/core",
+  "name": "@portals/provider",
   "version": "0.0.1",
-  "description": "Core functionality to render React Components into portals. ",
+  "description": "Common Provider for use with portals. ",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/exqir/portals.git",
-    "directory": "packages/core"
+    "directory": "packages/provider"
   },
   "author": "exqir <malte.sellmer@me.com>",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "prepublish": "npm run build"
   },
   "main": "dist/index.js",
-  "module": "dist/core.esm.js",
+  "module": "dist/provider.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "README.md",
@@ -28,11 +28,8 @@
     "react-dom": "^17.0.2"
   },
   "dependencies": {
-    "use-asset": "^1.0.4",
-    "use-subscription": "1.5.1"
-  },
-  "devDependencies": {
-    "@types/use-subscription": "^1.0.0"
+    "@portals/core": "0.0.1",
+    "history": "5.0.0"
   },
   "publishConfig": {
     "access": "public"

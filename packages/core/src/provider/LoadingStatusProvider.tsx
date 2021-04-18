@@ -1,4 +1,4 @@
-import { ReactElement, Dispatch, useCallback } from 'react'
+import { ReactNode, Dispatch, useCallback } from 'react'
 import React, { useReducer, createContext, useContext, useEffect } from 'react'
 
 import type { IRegistry } from '../types/definitions'
@@ -77,7 +77,7 @@ interface ILoadingStatusProviderProps {
   registry: IRegistry
   onStatusChanged?: (status: STATUS) => void
   onDispatch?: (action: ILoadingAction) => void
-  children: ReactElement
+  children: ReactNode
 }
 
 export function LoadingStatusProvider({
