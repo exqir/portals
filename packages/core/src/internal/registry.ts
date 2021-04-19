@@ -9,7 +9,7 @@ export function createRegistry(): IRegistry {
       return registry.get(element)
     },
     getElements() {
-      return [...registry.keys()]
+      return Array.from(registry.keys())
     },
     register(element: ModuleHostElement) {
       registry.set(element, createRegistry())

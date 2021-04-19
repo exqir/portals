@@ -1,5 +1,5 @@
 import type { IOnInitHook } from "@portals/core";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useLocale, useLocalize } from "@portals/provider";
 
@@ -26,8 +26,8 @@ export default function ModuleOne({ data }: IModuleOneProps) {
   );
 }
 
-export const useInit: IOnInitHook<string> = function useInitModuleOne() {
-  const [state, setState] = useState(null);
+export const useInit: IOnInitHook<string | null> = function useInitModuleOne() {
+  const [state, setState] = useState<string | null>(null);
 
   // Simulate API loading
   useEffect(() => {

@@ -1,5 +1,5 @@
 import type { IOnInitHook } from "@portals/core";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { useConfig, useView, useLocalize } from "@portals/provider";
 

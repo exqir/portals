@@ -62,7 +62,7 @@ function bootstrap(
 ) {
   const registry = createRegistry()
 
-  createCustomElements([...modules.keys()], registry)
+  createCustomElements(Array.from(modules.keys()), registry)
 
   if (AppProvider && isFunction(AppProvider.preload)) {
     AppProvider.preload(options)

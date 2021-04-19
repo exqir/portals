@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@portals/core": "0.0.1",
+    "tslib": "^2.2.0",
     "history": "5.0.0"
   },
   "publishConfig": {
