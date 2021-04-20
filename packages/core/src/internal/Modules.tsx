@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentType, ReactElement, ReactNode } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 
@@ -9,10 +9,10 @@ import type {
   IBootstrapOptions,
   IModuleDefinition,
 } from '../types/definitions'
-import type { ModuleHostElement } from './ModuleHostElement'
 import { RegistryProvider } from '../provider/RegistryProvider'
 import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
-import { HostProvider } from '../provider/HostProvider'
+import { HostProvider, useHost } from '../provider/HostProvider'
+import { useOutlet } from './Outlet'
 import { NoopProvider } from './utils'
 
 interface IModulesProps {
@@ -30,26 +30,7 @@ export default function Modules({
   ModuleProvider = NoopProvider,
   options,
 }: IModulesProps) {
-  function renderModule(host: ModuleHostElement, children?: ReactNode) {
-    const moduleTag = host.tagName.toLowerCase()
-    if (modules.has(moduleTag)) {
-      // We can be sure that ModuleComponent is not undefined because we
-      // checked that it is in the modules before.
-      const ModuleComponent = modules.get(moduleTag) as IModuleDefinition
-
-      return createPortal(
-        <HostProvider host={host} key={host.moduleId}>
-          <ModuleProvider>
-            <ModuleComponent>{children}</ModuleComponent>
-          </ModuleProvider>
-        </HostProvider>,
-        host,
-      )
-    }
-    return null
-  }
-
-  const modulesTree = buildModulesTree(registry, renderModule)
+  const modulesTree = buildModulesTree(registry, ModuleProvider, Module, modules)
 
   return (
     <BootstrapOptionsProvider options={options}>
@@ -62,10 +43,9 @@ export default function Modules({
 
 function buildModulesTree(
   registry: IRegistry,
-  renderModule: (
-    element: ModuleHostElement,
-    children?: ReactNode,
-  ) => ReactElement | null,
+  ModuleProvider: IProvider,
+  Module: ComponentType<IModuleProps>,
+  modules: IModulesMap
 ): ReactElement[] | undefined {
   const tree = registry.getElements()
   if (tree.length === 0) return undefined
@@ -76,9 +56,37 @@ function buildModulesTree(
     const leafRegistry = registry.getRegistry(leaf) as IRegistry
     components.push(
       <RegistryProvider registry={leafRegistry} key={leaf.moduleId}>
-        {renderModule(leaf, buildModulesTree(leafRegistry, renderModule))}
-      </RegistryProvider>,
+        <HostProvider host={leaf}>
+          <ModuleProvider>
+            <Module modules={modules}>
+              {buildModulesTree(leafRegistry, ModuleProvider, Module, modules)}
+            </Module>
+          </ModuleProvider>
+        </HostProvider>
+      </RegistryProvider>
     )
   }
   return components
+}
+
+interface IModuleProps {
+  modules: IModulesMap,
+  children: ReactNode,
+}
+
+function Module({ modules, children }: IModuleProps) {
+  const { host, moduleTag } = useHost()
+  const {outlet} = useOutlet()
+  if (modules.has(moduleTag)) {
+    // We can be sure that ModuleComponent is not undefined because we
+    // checked that it is in the modules before.
+    const ModuleComponent = modules.get(moduleTag) as IModuleDefinition
+
+    return createPortal(
+      <ModuleComponent>{children}</ModuleComponent>,
+      // Hide host element when component is rendered to an outlet?
+      outlet ?? host,
+    )
+  }
+  return null
 }

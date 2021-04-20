@@ -15,6 +15,8 @@ export {
   useLoadingStatus,
 } from './provider/LoadingStatusProvider'
 
+export { Outlet } from './internal/Outlet'
+
 export { combineProvider } from './combineProvider'
 export { createModule } from './createModule'
 export { createProvider, createContext } from './createProvider'

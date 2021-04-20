@@ -24,6 +24,7 @@ export interface IRegistry {
   getElements: () => ModuleHostElement[]
   register: (element: ModuleHostElement) => void
   unregister: (element: ModuleHostElement) => void
+  __r: IRegistryTree
 }
 
 export interface IProviderOptions<Props = unknown, Payload = unknown> {

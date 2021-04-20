@@ -17,5 +17,6 @@ export function createRegistry(): IRegistry {
     unregister(element: ModuleHostElement) {
       registry.delete(element)
     },
+    __r: registry
   }
 }

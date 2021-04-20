@@ -9,7 +9,9 @@
   <body>
     <div id="root"></div>
     <module-one></module-one>
-    <module-two></module-two>
+    <module-two>
+      <module-one></module-one>
+    </module-two>
     <module-view name="one">
       <template>
         <p>View one children outside of module</p>

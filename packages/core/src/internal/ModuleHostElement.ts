@@ -25,6 +25,10 @@ export class ModuleHostElement extends HTMLElement {
   }
 
   connectedCallback(): void {
+    // This seems to relay on the order in which elements are registed at the customElement
+    // registry. When the element is registered the instances are created and connected, if
+    // the parent element is not yet registered it will not have the data-module-id attribute
+    // yet and the element is therefore not considered as nested.
     if (isNestedModule(this)) {
       // .closest needs polyfill for IE.
       // Use closest on parentElement to make sure not to select the
