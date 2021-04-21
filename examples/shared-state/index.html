@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shared state</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div class="intro">
+      <span class="portal"></span>
+      <h1>Rick and Morty</h1>
+    </div>
+    <navigation-bar></navigation-bar>
+    <view-module name="season">
+      <season-selection></season-selection>
+    </view-module>
+    <view-module name="episodes">
+      <episode-selection></episode-selection>
+    </view-module>
+    <view-module name="characters">
+      <character-list></character-list>
+    </view-module>
+    <script type="module" src="/src/entry.tsx"></script>
+  </body>
+</html>
