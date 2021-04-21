@@ -9,7 +9,6 @@ import type {
 } from './types/definitions'
 
 import Modules from './internal/Modules'
-import { createRegistry } from './internal/registry'
 import { createCustomElements } from './internal/createCustomElements'
 import { isFunction } from './internal/utils'
 
@@ -60,9 +59,7 @@ function bootstrap(
   AppProvider?: IProvider,
   ModuleProvider?: IProvider,
 ) {
-  const registry = createRegistry()
-
-  createCustomElements(Array.from(modules.keys()), registry)
+  const registry = createCustomElements(Array.from(modules.keys()))
 
   if (AppProvider && isFunction(AppProvider.preload)) {
     AppProvider.preload(options)

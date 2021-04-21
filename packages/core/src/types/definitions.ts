@@ -22,7 +22,7 @@ export type IRegistryTree = Map<ModuleHostElement, IRegistry>
 export interface IRegistry {
   getRegistry: (element: ModuleHostElement) => IRegistry | undefined
   getElements: () => ModuleHostElement[]
-  register: (element: ModuleHostElement) => void
+  register: (element: ModuleHostElement, children: IRegistry) => void
   unregister: (element: ModuleHostElement) => void
   __r: IRegistryTree
 }

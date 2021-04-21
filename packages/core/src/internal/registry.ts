@@ -11,8 +11,8 @@ export function createRegistry(): IRegistry {
     getElements() {
       return Array.from(registry.keys())
     },
-    register(element: ModuleHostElement) {
-      registry.set(element, createRegistry())
+    register(element: ModuleHostElement, children: IRegistry) {
+      registry.set(element, children)
     },
     unregister(element: ModuleHostElement) {
       registry.delete(element)

@@ -76,7 +76,8 @@ interface IModuleProps {
 
 function Module({ modules, children }: IModuleProps) {
   const { host, moduleTag } = useHost()
-  const {outlet} = useOutlet()
+  const { outlet } = useOutlet()
+
   if (modules.has(moduleTag)) {
     // We can be sure that ModuleComponent is not undefined because we
     // checked that it is in the modules before.

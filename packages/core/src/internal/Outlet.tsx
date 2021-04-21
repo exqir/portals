@@ -1,10 +1,5 @@
 import type { ReactNode } from 'react'
-import React, {
-  Fragment,
-  useState,
-  createContext,
-  useContext,
-} from 'react'
+import React, { Fragment, useState, createContext, useContext, useEffect } from 'react'
 import { useHost } from '../provider/HostProvider'
 
 interface IOutletContext {
@@ -17,6 +12,9 @@ interface IOutletProps {
   children: ReactNode
 }
 
+// Suppport named outlets so that a Module can support multiple
+// places to mount children two.
+// Potentially duplicate web-components API for slots.
 export function Outlet({ children }: IOutletProps) {
   const { moduleId } = useHost()
   const [outlet, setOutlet] = useState(null)
@@ -27,11 +25,23 @@ export function Outlet({ children }: IOutletProps) {
         {children}
       </OutletContext.Provider>
       {/* @ts-ignore */}
-      <div ref={setOutlet} data-module-outlet={moduleId} />
+      <div ref={setOutlet} data-module-outlet-owner={moduleId} />
     </Fragment>
   )
 }
 
 export function useOutlet() {
-  return useContext(OutletContext)
+  const { host } = useHost()
+  const { outlet } = useContext(OutletContext)
+
+  useEffect(() => {
+    if (outlet) {
+      // Hide the original host as the content will not be rendered into it,
+      // it only serves to defien what should be rendered inside the outlet.
+      host.hide()
+      outlet.setAttribute('data-module-outlet-content', host.moduleId)
+    }
+  }, [outlet])
+
+  return { outlet }
 }

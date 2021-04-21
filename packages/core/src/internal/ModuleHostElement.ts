@@ -1,15 +1,17 @@
 import type { IRegistry } from '../types/definitions'
 
 import { isModuleHostElement } from './utils'
-
+import { createRegistry } from './registry'
 export class ModuleHostElement extends HTMLElement {
   public moduleId: string
-  private _registry: IRegistry
+  private _registry: Set<ModuleHostElement>
+  private _children: IRegistry
 
-  constructor(registry: IRegistry) {
+  constructor(registry: Set<ModuleHostElement>) {
     super()
 
     this._registry = registry
+    this._children = createRegistry()
 
     this.moduleId = [
       this.tagName.toLowerCase(),
@@ -25,38 +27,24 @@ export class ModuleHostElement extends HTMLElement {
   }
 
   connectedCallback(): void {
-    // This seems to relay on the order in which elements are registed at the customElement
-    // registry. When the element is registered the instances are created and connected, if
-    // the parent element is not yet registered it will not have the data-module-id attribute
-    // yet and the element is therefore not considered as nested.
-    if (isNestedModule(this)) {
-      // .closest needs polyfill for IE.
-      // Use closest on parentElement to make sure not to select the
-      // Host element itself because closest can return the element
-      // it was called on when it matches the selector.
-      const parent = this.parentElement?.closest('[data-module-id]')
-      if (parent && isModuleHostElement(parent)) {
-        // Set Registry to childRegistry, so that it can unregister itself
-        // from the parents registry on disconnect.
-        this._registry = parent.registerChild(this)
-        return
-      }
-    }
-
-    this._registry.register(this)
+    this._registry.add(this)
   }
+
   disconnectedCallback(): void {
-    return this._registry.unregister(this)
+    this._registry.delete(this)
   }
 
-  registerChild(element: ModuleHostElement): IRegistry {
-    const childrenRegistry = this._registry.getRegistry(this) as IRegistry
-    childrenRegistry.register(element)
-    return childrenRegistry
+  registerChild(element: ModuleHostElement): void {
+    this._children.register(element, element._children)
   }
 
   moduleMounted() {
-    this.setAttribute('data-module-status', 'connected')
+    this.setAttribute('data-module-status', 'mounted')
+  }
+
+  hide() {
+    this.style.display = 'none';
+    this.style.visibility = 'hidden'
   }
 
   renderChildren() {
@@ -79,7 +67,23 @@ export class ModuleHostElement extends HTMLElement {
       this.appendChild(template.content.cloneNode(true))
     }
   }
-}
+
+  initialiseTree(root: IRegistry) {
+    if (isNestedModule(this)) {
+      // .closest needs polyfill for IE.
+      // Use closest on parentElement to make sure not to select the
+      // Host element itself because closest can return the element
+      // it was called on when it matches the selector.
+      const parent = this.parentElement?.closest('[data-module-id]')
+      if (parent && isModuleHostElement(parent)) {
+        parent.registerChild(this)
+        return
+      }
+    }
+
+    root.register(this, this._children)
+  }
+} 
 
 function isNestedModule(element: ModuleHostElement): boolean {
   return (
