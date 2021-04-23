@@ -61,6 +61,12 @@ body {
   padding: 0.5rem;
 }
 
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 /* Intro */
 
 .intro {

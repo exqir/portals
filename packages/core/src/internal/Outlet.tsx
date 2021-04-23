@@ -37,7 +37,7 @@ export function useOutlet() {
   useEffect(() => {
     if (outlet) {
       // Hide the original host as the content will not be rendered into it,
-      // it only serves to defien what should be rendered inside the outlet.
+      // it only serves to define what should be rendered inside the outlet.
       host.hide()
       outlet.setAttribute('data-module-outlet-content', host.moduleId)
     }
