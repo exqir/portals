@@ -1,0 +1,8 @@
+{
+  "module-one": {
+    "message": "Hello"
+  },
+  "module-two": {
+    "message": "Goodbye"
+  }
+}
