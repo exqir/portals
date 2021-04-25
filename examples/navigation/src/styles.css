@@ -61,57 +61,6 @@ body {
   padding: 0.5rem;
 }
 
-.episodes ul {
-  list-style: none;
-  padding: 0;
-}
-
-.episodes li {
-  margin: 1.2rem 0;
-}
-
-input[type='radio'] {
-  position: absolute;
-  opacity: 0;
-}
-
-input[type='radio'] + label {
-  border-radius: 5px;
-  padding: 0.5rem;
-  background: var(--background-button);
-  cursor: pointer;
-}
-
-input[type='radio']:checked + label {
-  background: var(--rick-green);
-  color: var(--rick-brown);
-}
-
-input[type='radio']:focus + label {
-  box-shadow: inset 0px 0px 0 2px var(--rick-green),
-    inset 0px 0px 0 4px var(--background);
-}
-
-.characters > div {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-}
-
-.characters article {
-  display: flex;
-  width: 350px;
-  margin: 0.5rem;
-  border-radius: 5px;
-  overflow: hidden;
-  background: var(--background-card);
-  align-items: center;
-}
-
-.characters img {
-  margin-right: 0.5rem;
-}
-
 @keyframes rotate {
   0% {
     transform: rotate(0deg);
@@ -135,6 +84,26 @@ input[type='radio']:focus + label {
   background: var(--portal-gradient);
   margin-right: 0.5rem;
   animation: rotate 2s infinite linear forwards;
+}
+
+/* Navigation */
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.button {
+  position: relative;
+  border-radius: 5px;
+  padding: 0.5rem;
+  background-color: var(--background-button);
+  color: var(--text-color);
+}
+
+.button.active {
+  background-color: var(--rick-green);
+  color: var(--rick-brown);
 }
 
 /* Intro */

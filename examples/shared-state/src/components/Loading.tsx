@@ -1,10 +1,14 @@
 import React from 'react'
 
+import { ModuleBox } from './ModuleBox'
+
 export function Loading() {
   return (
-    <div className="loading">
-      <i />
-      Loading
-    </div>
+    <ModuleBox>
+      <div className="loading">
+        <i />
+        Loading
+      </div>
+    </ModuleBox>
   )
 }

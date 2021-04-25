@@ -8,9 +8,8 @@ export default function Navigation() {
   return (
     <ModuleBox>
       <nav>
-        <NavButton name="season">Season</NavButton>
-        <NavButton name="episodes">Episodes</NavButton>
-        <NavButton name="characters">Characters</NavButton>
+        <NavButton name="data-fetching">Fetching data</NavButton>
+        <NavButton name="static">Static</NavButton>
       </nav>
     </ModuleBox>
   )
@@ -22,14 +21,15 @@ interface INavButtonProps {
 }
 
 function NavButton({ name, children }: INavButtonProps) {
-  const { isActive, navigate } = useView(name)
+  const { isActive, isPreloading, navigate } = useView(name)
 
   return (
     <button
       className={`button ${isActive ? 'active' : ''}`}
       onClick={() => navigate(name)}
+      disabled={isPreloading}
     >
-      {children}
+      {isPreloading ? 'Waiting' : children}
     </button>
   )
 }

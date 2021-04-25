@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shared state</title>
+    <title>Navigation</title>
   </head>
   <body>
     <div id="root"></div>
@@ -12,9 +12,13 @@
       <span class="portal"></span>
       <h1>Rick and Morty</h1>
     </div>
-    <season-selection></season-selection>
-    <episode-selection></episode-selection>
-    <character-list></character-list>
+    <navigation-bar></navigation-bar>
+    <view-module name="data-fetching">
+      <data-fetching></data-fetching>
+    </view-module>
+    <view-module name="static">
+      <static-content></static-content>
+    </view-module>
     <script type="module" src="/src/entry.tsx"></script>
   </body>
 </html>

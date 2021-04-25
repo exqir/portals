@@ -1,5 +1,5 @@
 import { createUseCase, combineProvider } from '@portals/core'
-import { GlobalLoadingProvider, ViewProvider } from '@portals/provider'
+import { GlobalLoadingProvider } from '@portals/provider'
 
 import { GraphQLProvider } from './provider/GraphQLProvider'
 import { AppStateProvider } from './provider/AppStateProvider'
@@ -13,7 +13,6 @@ export const { bootstrap } = createUseCase({
   modules,
   AppProvider: combineProvider([
     GlobalLoadingProvider,
-    ViewProvider,
     GraphQLProvider,
     AppStateProvider,
   ]),
