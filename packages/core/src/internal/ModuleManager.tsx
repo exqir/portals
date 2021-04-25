@@ -9,6 +9,7 @@ import {
 } from '../provider/LoadingStatusProvider'
 import { useHost } from '../provider/HostProvider'
 import { useRegistry } from '../provider/RegistryProvider'
+import { useBootstrapOptions } from '../provider/BootstrapOptionsProvider'
 
 interface IModuleLoaderProps<Payload = unknown> {
   useInit: IOnInitHook<Payload>
@@ -21,6 +22,8 @@ export function ModuleManager<Payload>({
   module: Module,
   ...props
 }: IModuleLoaderProps<Payload>): ReactElement {
+  const { options } = useBootstrapOptions()
+  console.log(options)
   const [
     { loading: childrenLoading, error: childrenError },
     setStatus,
@@ -83,9 +86,9 @@ export function ModuleManager<Payload>({
     <LoadingStatusProvider registry={registry} onStatusChanged={onStatusChange}>
       <Suspense fallback={null}>
         {loading ? (
-          <div>Loading</div>
+          <options.Loading />
         ) : error ? (
-          <div>Error</div>
+          <options.Error />
         ) : (
           <Module data={data} {...props} />
         )}

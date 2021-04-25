@@ -22,6 +22,7 @@ export function createLoadableComponent<Payload = unknown>({
           ? useInit
           : () => Promise.resolve(noopHook),
     },
+    // TOOD: This should also be replaced by a configurable Loading component
     loading: () => <div>Loading</div>,
     render(
       loaded: { Component: { default: ComponentType }; useInit: IOnInitHook },

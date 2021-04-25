@@ -44,6 +44,11 @@ export interface IBootstrapOptions {
   baseUrl: string
   [key: string]: unknown
 }
+export interface IUseCaseOptions {
+  Loading: ComponentType
+  Error: ComponentType
+  [key: string]: unknown
+}
 
 type IPreloadFunction<Payload> = (
   options: IBootstrapOptions,

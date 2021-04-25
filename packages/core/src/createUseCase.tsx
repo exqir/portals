@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 
 import type {
   IBootstrapOptions,
+  IUseCaseOptions,
   IModuleDefinition,
   IProvider,
   IRegistry,
@@ -10,7 +11,7 @@ import type {
 
 import Modules from './internal/Modules'
 import { createCustomElements } from './internal/createCustomElements'
-import { isFunction } from './internal/utils'
+import { isFunction, NoopComponent } from './internal/utils'
 
 type IModules = Map<string, IModuleDefinition>
 
@@ -18,23 +19,29 @@ interface IUseCase {
   modules: IModules
   AppProvider?: IProvider
   ModuleProvider?: IProvider
+  options?: Partial<IUseCaseOptions>
 }
 
 export function createUseCase({
   modules,
   AppProvider,
   ModuleProvider,
+  options: useCaseOptions = {
+    Loading: NoopComponent,
+    Error: NoopComponent,
+  }
 }: IUseCase) {
   return {
     bootstrap: (options: IBootstrapOptions) =>
-      bootstrap(modules, options, AppProvider, ModuleProvider),
+      // Can the type cast be avoided? 
+      bootstrap(modules, { ...(useCaseOptions as IUseCaseOptions), ...options }, AppProvider, ModuleProvider),
   }
 }
 
 function render(
   modules: IModules,
   registry: IRegistry,
-  options: IBootstrapOptions,
+  options: IBootstrapOptions & IUseCaseOptions,
   AppProvider?: IProvider,
   ModuleProvider?: IProvider,
 ) {
@@ -55,7 +62,7 @@ function render(
 
 function bootstrap(
   modules: IModules,
-  options: IBootstrapOptions,
+  options: IBootstrapOptions & IUseCaseOptions,
   AppProvider?: IProvider,
   ModuleProvider?: IProvider,
 ) {

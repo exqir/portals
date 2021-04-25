@@ -25,3 +25,7 @@ export function NoopProvider({
 }): ReactElement | null {
   return (children as ReactElement) ?? null
 }
+
+export function NoopComponent() {
+  return null
+}

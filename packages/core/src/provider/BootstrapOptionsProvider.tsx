@@ -1,8 +1,8 @@
-import type { IBootstrapOptions } from '../types/definitions'
+import type { IBootstrapOptions, IUseCaseOptions } from '../types/definitions'
 import { createContext } from '../createProvider'
 
 interface IBootstrapOptionsContext {
-  options: IBootstrapOptions
+  options: IBootstrapOptions & IUseCaseOptions
 }
 
 export const [

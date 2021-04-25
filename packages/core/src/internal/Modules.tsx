@@ -7,6 +7,7 @@ import type {
   IRegistry,
   IProvider,
   IBootstrapOptions,
+  IUseCaseOptions,
   IModuleDefinition,
 } from '../types/definitions'
 import { RegistryProvider } from '../provider/RegistryProvider'
@@ -20,7 +21,7 @@ interface IModulesProps {
   modules: IModulesMap
   AppProvider?: IProvider
   ModuleProvider?: IProvider
-  options: IBootstrapOptions
+  options: IBootstrapOptions & IUseCaseOptions
 }
 
 export default function Modules({
