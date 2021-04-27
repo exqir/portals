@@ -23,7 +23,6 @@ export function ModuleManager<Payload>({
   ...props
 }: IModuleLoaderProps<Payload>): ReactElement {
   const { options } = useBootstrapOptions()
-  console.log(options)
   const [
     { loading: childrenLoading, error: childrenError },
     setStatus,

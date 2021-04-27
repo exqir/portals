@@ -19,6 +19,5 @@ export const modules = new Map<string, IModuleDefinition>([
     // @ts-ignore
     component: () => import("./modules/CharacterList"),
     useInit: () => import("./modules/CharacterList").then(({ useInit }) => useInit)
-
   })
 ]);
