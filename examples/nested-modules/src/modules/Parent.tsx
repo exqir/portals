@@ -12,10 +12,11 @@ export default function Parent({ children }: IParentProps) {
   return (
     <ModuleBox>
       <div className="inline">
+        <Outlet slot="left" />
         <p className="inline">
         <Portal/> The parent module rendering the child module.
         </p>
-        <Outlet>{children}</Outlet>
+        <Outlet />
       </div>
     </ModuleBox>
   );

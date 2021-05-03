@@ -14,7 +14,7 @@ export default function Parent({ children }: IParentProps) {
       <p className="inline">
        <Portal/> The grand parent module rendering the parent module.
       </p>
-      <Outlet>{children}</Outlet>
+      <Outlet />
     </ModuleBox>
   );
 }

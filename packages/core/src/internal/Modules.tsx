@@ -13,7 +13,7 @@ import type {
 import { RegistryProvider } from '../provider/RegistryProvider'
 import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
 import { HostProvider, useHost } from '../provider/HostProvider'
-import { useOutlet } from './Outlet'
+import { useOutlet, OutletProvider } from './Outlet'
 import { NoopProvider } from './utils'
 
 interface IModulesProps {
@@ -55,17 +55,27 @@ function buildModulesTree(
     // We are sure it is an IRegistry because we are iterating over the
     // keys of the map therefore the key has to be in the map.
     const leafRegistry = registry.getRegistry(leaf) as IRegistry
-    components.push(
-      <RegistryProvider registry={leafRegistry} key={leaf.moduleId}>
-        <HostProvider host={leaf}>
+    const component = (
+      // HostProvider needs to be the outermost provider so that the host
+      // can be accessed in the OutletProvider
+      <HostProvider host={leaf} key={leaf.moduleId}>
+        <RegistryProvider registry={leafRegistry}>
+        {/* 
+        Could the slot check be done here as we have access to the host already and then 
+        communicate it to the parent by a setState passed down through an OutletContext?
+          - Need to check if in an OutletContext
+          - addSlot(slotName, component)
+        Does this cause to many rerenders?
+        */}
           <ModuleProvider>
             <Module modules={modules}>
               {buildModulesTree(leafRegistry, ModuleProvider, Module, modules)}
             </Module>
           </ModuleProvider>
-        </HostProvider>
-      </RegistryProvider>
+        </RegistryProvider>
+      </HostProvider>
     )
+    components.push(component)
   }
   return components
 }
@@ -85,8 +95,9 @@ function Module({ modules, children }: IModuleProps) {
     const ModuleComponent = modules.get(moduleTag) as IModuleDefinition
 
     return createPortal(
-      <ModuleComponent>{children}</ModuleComponent>,
-      // Hide host element when component is rendered to an outlet?
+      <OutletProvider content={children}>
+        <ModuleComponent>{children}</ModuleComponent>
+      </OutletProvider>,
       outlet ?? host,
     )
   }
