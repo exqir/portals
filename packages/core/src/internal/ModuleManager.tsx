@@ -1,5 +1,5 @@
 import type { ReactElement, FC } from 'react'
-import React, { Suspense, useEffect, useState, useCallback } from 'react'
+import React, { Suspense, useEffect, useState, useCallback, Children } from 'react'
 
 import type { IOnInitHook } from '../types/definitions'
 import {
@@ -33,7 +33,7 @@ export function ModuleManager<Payload>({
     // never change to false because the children will not
     // publish an IDLE status because they are not rendered.
     // Could the view publish a IDLE status if it is not active?
-    loading: typeof props.children !== 'undefined',
+    loading: typeof props.children !== 'undefined' && (Children.count(props.children) > 0),
     error: undefined,
   })
   const { host } = useHost()

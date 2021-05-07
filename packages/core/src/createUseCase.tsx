@@ -9,7 +9,7 @@ import type {
   IRegistry,
 } from './types/definitions'
 
-import Modules from './internal/Modules'
+import { App } from './internal/App'
 import { createCustomElements } from './internal/createCustomElements'
 import { isFunction, NoopComponent } from './internal/utils'
 
@@ -48,7 +48,7 @@ function render(
   const rootElement = document.getElementById('root')
   ReactDOM.render(
     <StrictMode>
-      <Modules
+      <App
         registry={registry}
         modules={modules}
         AppProvider={AppProvider}

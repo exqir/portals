@@ -16,7 +16,7 @@ import { HostProvider, useHost } from '../provider/HostProvider'
 import { useOutlet, OutletProvider } from './Outlet'
 import { NoopProvider } from './utils'
 
-interface IModulesProps {
+interface IAppProps {
   registry: IRegistry
   modules: IModulesMap
   AppProvider?: IProvider
@@ -24,19 +24,17 @@ interface IModulesProps {
   options: IBootstrapOptions & IUseCaseOptions
 }
 
-export default function Modules({
+export function App({
   registry,
   modules,
   AppProvider = NoopProvider,
   ModuleProvider = NoopProvider,
   options,
-}: IModulesProps) {
-  const modulesTree = buildModulesTree(registry, ModuleProvider, Module, modules)
-
+}: IAppProps) {
   return (
     <BootstrapOptionsProvider options={options}>
       <RegistryProvider registry={registry}>
-        <AppProvider>{modulesTree}</AppProvider>
+        <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules)} />
       </RegistryProvider>
     </BootstrapOptionsProvider>
   )
@@ -48,36 +46,18 @@ function buildModulesTree(
   Module: ComponentType<IModuleProps>,
   modules: IModulesMap
 ): ReactElement[] | undefined {
-  const tree = registry.getElements()
-  if (tree.length === 0) return undefined
-  const components: ReactElement[] = []
-  for (const leaf of tree) {
-    // We are sure it is an IRegistry because we are iterating over the
-    // keys of the map therefore the key has to be in the map.
-    const leafRegistry = registry.getRegistry(leaf) as IRegistry
-    const component = (
-      // HostProvider needs to be the outermost provider so that the host
-      // can be accessed in the OutletProvider
-      <HostProvider host={leaf} key={leaf.moduleId}>
-        <RegistryProvider registry={leafRegistry}>
-        {/* 
-        Could the slot check be done here as we have access to the host already and then 
-        communicate it to the parent by a setState passed down through an OutletContext?
-          - Need to check if in an OutletContext
-          - addSlot(slotName, component)
-        Does this cause to many rerenders?
-        */}
+  return registry.getElements().map(element => {
+    const elementRegistry = registry.getRegistry(element) as IRegistry
+    return (
+      <HostProvider host={element} key={element.moduleId}>
+        <RegistryProvider registry={elementRegistry}>
           <ModuleProvider>
-            <Module modules={modules}>
-              {buildModulesTree(leafRegistry, ModuleProvider, Module, modules)}
-            </Module>
+            <Module modules={modules} children={buildModulesTree(elementRegistry, ModuleProvider, Module, modules)} />
           </ModuleProvider>
         </RegistryProvider>
       </HostProvider>
     )
-    components.push(component)
-  }
-  return components
+  })
 }
 
 interface IModuleProps {

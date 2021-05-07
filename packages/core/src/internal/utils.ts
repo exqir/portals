@@ -19,7 +19,7 @@ export function isUndefined(value: any): value is undefined {
 export function isModuleHostElement(
   element: Element,
 ): element is ModuleHostElement {
-  return Object.prototype.hasOwnProperty.call(element, 'moduleId')
+  return element && Object.prototype.hasOwnProperty.call(element, 'moduleId')
 }
 
 export function NoopProvider({
