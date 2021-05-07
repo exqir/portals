@@ -10,7 +10,7 @@ import React, {
   useRef
 } from "react";
 import { createBrowserHistory } from "history";
-import { useRegistry, useHost, LoadingStatusProvider, STATUS, useLoadingStatus, useDispatchStatusChange } from "@portals/core";
+import { useRegistry, useHost, LoadingStatusProvider, LOADING_STATUS, useLoadingStatus, useDispatchStatusChange } from "@portals/core";
 
 // Should we move core utils to its own package so that they can be shared?
 function noop() {}
@@ -149,15 +149,15 @@ export function View({ children }: ViewProps) {
   const { dispatchStatusChange } = useDispatchStatusChange();
   const initialDisplayStyle = useRef(host.style.display);
   const id = host.moduleId;
-  const { setLoaded } = useLoadingStatus(id);
+  // const { setLoaded } = useLoadingStatus(id);
 
-  useEffect(() => {
-    if (!isActive) {
-      registry.getElements().forEach((e) => {
-        setLoaded(e.moduleId);
-      });
-    }
-  }, [isActive, setLoaded, registry]);
+  // useEffect(() => {
+  //   if (!isActive) {
+  //     registry.getElements().forEach((e) => {
+  //       setLoaded(e.moduleId);
+  //     });
+  //   }
+  // }, [isActive, setLoaded, registry]);
 
   useLayoutEffect(() => {
     if (isActive) {
@@ -196,11 +196,11 @@ export function View({ children }: ViewProps) {
 function onNavigation(
   onNavigationStatusChange: IViewContext["onNavigationStatusChange"]
 ) {
-  return (status: STATUS) => {
-    if (status === STATUS.ERROR) {
+  return (status: LOADING_STATUS) => {
+    if (status === LOADING_STATUS.ERROR) {
       return onNavigationStatusChange(NAVIGATION_STATUS.ERROR);
     }
-    if (status === STATUS.IDLE) {
+    if (status === LOADING_STATUS.IDLE) {
       return onNavigationStatusChange(NAVIGATION_STATUS.SUCCESS);
     }
   };
