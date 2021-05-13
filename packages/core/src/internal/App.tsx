@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement, ReactNode } from 'react'
+import { ComponentType, ReactElement, ReactNode, Suspense } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 
@@ -34,7 +34,9 @@ export function App({
   return (
     <BootstrapOptionsProvider options={options}>
       <RegistryProvider registry={registry}>
-        <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules)} />
+        <Suspense fallback={null}>
+          <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules)} />
+        </Suspense>
       </RegistryProvider>
     </BootstrapOptionsProvider>
   )
