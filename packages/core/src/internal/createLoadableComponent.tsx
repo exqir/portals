@@ -1,40 +1,32 @@
 import type { FC, ComponentType } from 'react'
-import React from 'react'
-import Loadable from './loadable'
+import React, { lazy } from 'react'
 
 import type { ILazy, IOnInitHook } from '../types/definitions'
 import { ModuleManager } from './ModuleManager'
+import { isFunction } from './utils'
 
 export interface ILoadableComponent {
-  component: ILazy<FC>
+  component: ILazy<{ default: FC<{ data?: any }> }>
   useInit?: ILazy<IOnInitHook>
-}
-
-export function createLoadableComponent<Payload = unknown>({
-  component,
-  useInit,
-}: ILoadableComponent): ComponentType<Payload> {
-  return Loadable.Map({
-    loader: {
-      Component: component,
-      useInit:
-        typeof useInit === 'function'
-          ? useInit
-          : () => Promise.resolve(noopHook),
-    },
-    // TOOD: This should also be replaced by a configurable Loading component
-    loading: () => <div>Loading</div>,
-    render(
-      loaded: { Component: { default: ComponentType }; useInit: IOnInitHook },
-      props: any,
-    ) {
-      const Component = loaded.Component.default
-      const useInit = loaded.useInit
-      return <ModuleManager {...props} useInit={useInit} module={Component} />
-    },
-  })
 }
 
 const noopHook: IOnInitHook<null> = () => {
   return { data: null, loading: false, error: undefined }
+}
+
+export function createLoadableComponent({ component, useInit }: ILoadableComponent): ComponentType<any> {
+  return lazy(() =>
+    Promise.all([
+      component(),
+      isFunction(useInit) ? useInit() : noopHook,
+    ]).then(
+      ([{ default: Component }, useInit]) => ({
+        default: function LazyModule(props: any) {
+          return (
+            <ModuleManager {...props} useInit={useInit} module={Component} />
+          )
+        },
+      }),
+    ),
+  )
 }
