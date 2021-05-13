@@ -11,9 +11,10 @@ interface IParentProps {
 export default function Parent({ children }: IParentProps) {
   return (
     <ModuleBox>
-      <p className="inline">
-       <Portal/> The grand parent module rendering the parent module.
-      </p>
+      <Outlet slot="top" fallback={<p>Top slot fallback</p>} />
+      <div className="inline">
+        <Portal/> The grand parent module rendering the parent module.
+      </div>
       <Outlet />
     </ModuleBox>
   );

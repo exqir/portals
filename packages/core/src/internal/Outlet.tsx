@@ -24,9 +24,10 @@ const OutletHostContext = createContext<IOutletHostContext>({ outlet: null })
 interface IOutletProps {
   slot?: string
   condition?: boolean | (() => boolean)
+  fallback?: ReactNode
 }
 
-export function Outlet({ slot, condition }: IOutletProps) {
+export function Outlet({ slot, condition, fallback }: IOutletProps) {
   const { moduleId } = useHost()
   const { children } = useOutletContent(slot)
   const { setLoaded } = useLoadingStatus(moduleId)
@@ -49,10 +50,16 @@ export function Outlet({ slot, condition }: IOutletProps) {
   return (
     <Fragment>
       <OutletHostContext.Provider value={{ outlet }}>
-        {shouldRender ? children : null}
+        {shouldRender && !isUndefined(children) ? children : null}
       </OutletHostContext.Provider>
-      {/* @ts-ignore */}
-      <div ref={setOutlet} data-module-outlet-owner={moduleId} />
+      <div
+        // @ts-ignore
+        ref={setOutlet}
+        data-module-outlet-owner={moduleId}
+        data-module-outlet-slot={slot}
+      >
+        {shouldRender && isUndefined(children) ? fallback : null}
+      </div>
     </Fragment>
   )
 }
