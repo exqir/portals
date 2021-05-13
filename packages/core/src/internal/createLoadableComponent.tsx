@@ -6,7 +6,7 @@ import { ModuleManager } from './ModuleManager'
 import { isFunction } from './utils'
 
 export interface ILoadableComponent {
-  component: ILazy<{ default: FC}>
+  component: ILazy<{ default: FC<{ data?: any }> }>
   useInit?: ILazy<IOnInitHook>
 }
 
@@ -14,7 +14,7 @@ const noopHook: IOnInitHook<null> = () => {
   return { data: null, loading: false, error: undefined }
 }
 
-export function createLoadableComponent<Payload = unknown>({ component, useInit }: ILoadableComponent): ComponentType<Payload> {
+export function createLoadableComponent({ component, useInit }: ILoadableComponent): ComponentType<any> {
   return lazy(() =>
     Promise.all([
       component(),

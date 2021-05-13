@@ -13,7 +13,6 @@ export const modules = new Map<string, IModuleDefinition>([
   }),
   createModule({
     moduleTag: 'navigation-bar',
-    // @ts-ignore
     component: () => import("./modules/Navigation"),
   }),
   createModule({
@@ -26,6 +25,5 @@ export const modules = new Map<string, IModuleDefinition>([
     moduleTag: 'static-content',
     // @ts-ignore
     component: () => import("./modules/Static"),
-
   })
 ]);

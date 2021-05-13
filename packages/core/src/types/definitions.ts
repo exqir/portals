@@ -13,7 +13,7 @@ export interface IOnInitResult<Payload = unknown> {
   loading: boolean
 }
 
-export type IModuleDefinition<Payload = unknown> = ComponentType<Payload>
+export type IModuleDefinition = ComponentType<any>
 
 export type IModulesMap = Map<string, IModuleDefinition>
 
@@ -45,6 +45,7 @@ export interface IBootstrapOptions {
   [key: string]: unknown
 }
 export interface IUseCaseOptions {
+  // TODO: Make these optinal. They are set to a NoopFunction otherwise
   Loading: ComponentType
   Error: ComponentType
   [key: string]: unknown

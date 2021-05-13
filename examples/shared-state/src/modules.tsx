@@ -5,7 +5,6 @@ import { createModule } from "@portals/core";
 export const modules = new Map<string, IModuleDefinition>([
   createModule({
     moduleTag: 'season-selection',
-    // @ts-ignore
     component: () => import("./modules/SeasonSelection"),
   }),
   createModule({
