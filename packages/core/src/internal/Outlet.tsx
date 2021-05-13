@@ -11,7 +11,9 @@ import React, {
 } from 'react'
 
 import { useHost } from '../provider/HostProvider'
-import { isUndefined, isModuleHostElement } from './utils'
+import { useRegistry } from '../provider/RegistryProvider'
+import { useLoadingStatus } from '../provider/LoadingStatusProvider'
+import { isUndefined, isModuleHostElement, isFunction } from './utils'
 
 interface IOutletHostContext {
   outlet: HTMLDivElement | null
@@ -21,18 +23,33 @@ const OutletHostContext = createContext<IOutletHostContext>({ outlet: null })
 
 interface IOutletProps {
   slot?: string
+  condition?: boolean | (() => boolean)
 }
 
-export function Outlet({ slot }: IOutletProps) {
+export function Outlet({ slot, condition }: IOutletProps) {
   const { moduleId } = useHost()
   const { children } = useOutletContent(slot)
-  console.log(children)
+  const { setLoaded } = useLoadingStatus(moduleId)
+  const { registry } = useRegistry()
   const [outlet, setOutlet] = useState(null)
+  const shouldRender = isUndefined(condition)
+    ? true
+    : isFunction(condition)
+    ? condition()
+    : condition
+
+  useEffect(() => {
+    if (!shouldRender) {
+      registry.getElements().forEach(e => {
+        setLoaded(e.moduleId)
+      })
+    }
+  }, [shouldRender, registry, setLoaded])
 
   return (
     <Fragment>
       <OutletHostContext.Provider value={{ outlet }}>
-        {children}
+        {shouldRender ? children : null}
       </OutletHostContext.Provider>
       {/* @ts-ignore */}
       <div ref={setOutlet} data-module-outlet-owner={moduleId} />
