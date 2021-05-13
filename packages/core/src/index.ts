@@ -10,10 +10,10 @@ export type {
 // of directly from @portals/core.
 export {
   LoadingStatusProvider,
-  LOADING_STATUS,
+  STATUS,
   useDispatchStatusChange,
   useLoadingStatus,
-} from './provider/_LoadingStatusProvider'
+} from './provider/LoadingStatusProvider'
 
 export { Outlet } from './internal/Outlet'
 

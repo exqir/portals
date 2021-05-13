@@ -4,9 +4,9 @@ import React, { Suspense, useEffect, useState, useCallback, Children, useLayoutE
 import type { IOnInitHook } from '../types/definitions'
 import {
   useLoadingStatus,
-  LOADING_STATUS,
+  // LOADING_STATUS,
   LoadingStatusProvider,
-} from '../provider/_LoadingStatusProvider'
+} from '../provider/LoadingStatusProvider'
 import { useHost } from '../provider/HostProvider'
 import { useRegistry } from '../provider/RegistryProvider'
 import { useBootstrapOptions } from '../provider/BootstrapOptionsProvider'
@@ -39,25 +39,14 @@ export function ModuleManager<Payload>({
   const { host } = useHost()
   // const { registry } = useRegistry()
   const { data, error, loading } = useInit()
-  const id = host.moduleId
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     host.moduleMounted()
   }, [host])
 
-  const { register, setError, setLoading, setLoaded } = useLoadingStatus(id)
-
-
-  // This causes a rerender preventing all register calls being 
-  // done before the first updates are made in useEffect
-
-  useLayoutEffect(() => {
-    console.log('layoutEffect')
-    register()
-  }, [register])
+  const { setError, setLoading, setLoaded } = useLoadingStatus(host)
 
   useEffect(() => {
-    console.log('effect')
     if (error) setError()
     else if (loading) setLoading()
     else setLoaded()
@@ -91,15 +80,11 @@ export function ModuleManager<Payload>({
   //   [id],
   // )
 
-  return (
-      <Suspense fallback={null}>
-        {loading ? (
+  return loading ? (
           <options.Loading />
         ) : error ? (
           <options.Error />
         ) : (
           <Module data={data} {...props} />
-        )}
-      </Suspense>
-  )
+        )
 }

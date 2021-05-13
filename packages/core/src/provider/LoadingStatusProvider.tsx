@@ -1,5 +1,5 @@
 import { ReactNode, Dispatch, useCallback } from 'react'
-import React, { useReducer, createContext, useContext, useEffect } from 'react'
+import React, { useReducer, createContext, useContext, useEffect, Suspense } from 'react'
 
 import type { IRegistry } from '../types/definitions'
 import type { ModuleHostElement } from '../internal/ModuleHostElement'
@@ -20,19 +20,40 @@ enum ACTIONS {
 
 interface ILoadingState {
   status: STATUS
-  watching: { id: string; status: STATUS }[]
+  watching: { module: ModuleHostElement; status: STATUS }[]
 }
 
-interface ILoadingAction {
+type ILoadingAction = {
   type: ACTIONS
-  payload: { id: string; status: STATUS }
+  payload: { module: ModuleHostElement; status: STATUS }
+} | { type: 'FINISHED_RENDERING',
 }
 
-function initState(elements: ModuleHostElement[]) {
+function getModuleStatus(element: ModuleHostElement) {
+  return element.attributes.getNamedItem('data-module-status')?.value
+}
+
+function getAllElements(registry: IRegistry): ModuleHostElement[] {
+  const elements: ModuleHostElement[] = []
+
+  registry.getElements().forEach(element => {
+    elements.push(element)
+    const childrenRegistry = registry.getRegistry(element)
+    if (childrenRegistry?.getElements().length) {
+      getAllElements(childrenRegistry).forEach(e => {
+        elements.push(e);
+      })
+    }
+  })
+  console.log(elements)
+  return elements
+}
+
+function initState(registry: IRegistry) {
   return {
     status: STATUS.INIT,
-    watching: elements.map((host) => ({
-      id: host.moduleId,
+    watching: getAllElements(registry).map((host) => ({
+      module: host,
       status: STATUS.INIT,
     })),
   }
@@ -41,17 +62,38 @@ function initState(elements: ModuleHostElement[]) {
 function loadingReducer(state: ILoadingState, action: ILoadingAction) {
   console.log(state, action)
   switch (action.type) {
-    case ACTIONS.CHILD_LOADING:
-    case ACTIONS.CHILD_ERRORED:
+    case 'FINISHED_RENDERING': {
+      console.log('Finished loading')
+      return state
+    }
+    case ACTIONS.CHILD_LOADING: {
+      return {
+        ...state,
+        status: STATUS.LOADING,
+        watching: [
+          ...state.watching.filter(({ module }) => module !== action.payload.module),
+          action.payload,
+        ]
+      }
+    }
+    case ACTIONS.CHILD_ERRORED: {
+      return {
+        ...state,
+        status: STATUS.ERROR,
+        watching: [
+          ...state.watching.filter(({ module }) => module !== action.payload.module),
+          action.payload,
+        ]
+      }
+    }
     case ACTIONS.CHILD_LOADED: {
       const watching = [
-        ...state.watching.filter(({ id }) => id !== action.payload.id),
+        ...state.watching.filter(({ module }) => module !== action.payload.module),
         action.payload,
       ]
-      const status = watching.some(({ status: s }) => s === STATUS.ERROR)
+      const status = watching.some(({ module, status: s }) => getModuleStatus(module) === 'mounted' && s === STATUS.ERROR)
         ? STATUS.ERROR
-        : watching.some(({ status: s }) => s === STATUS.LOADING) ||
-          watching.some(({ status: s }) => s === STATUS.INIT)
+        : watching.some(({ module, status: s }) => { const v = getModuleStatus(module) === 'mounted' && (s === STATUS.LOADING || s === STATUS.INIT); console.log(v, module, s); return v})
         ? STATUS.LOADING
         : STATUS.IDLE
       return {
@@ -88,7 +130,7 @@ export function LoadingStatusProvider({
 }: ILoadingStatusProviderProps) {
   const [{ status }, dispatch] = useReducer(
     loadingReducer,
-    registry.getElements(),
+    registry,
     initState,
   )
 
@@ -115,11 +157,28 @@ export function LoadingStatusProvider({
     [dispatch, onDispatch],
   )
 
+  const onFinishedLoading = useCallback(() => {
+    dispatch({ type: 'FINISHED_RENDERING' })
+  }, [])
+
   return (
-    <LoadingContext.Provider value={{ dispatchStatusChange }}>
-      {children}
-    </LoadingContext.Provider>
+    <Suspense fallback={<Unmount onUnmount={onFinishedLoading} />}>
+      <LoadingContext.Provider value={{ dispatchStatusChange }}>
+        {children}
+      </LoadingContext.Provider>
+    </Suspense>
   )
+}
+
+function Unmount({ onUnmount }) {
+  useEffect(() => {
+    return () => {
+      debugger
+      onUnmount()
+    }
+  }, [])
+
+  return null
 }
 
 export function useDispatchStatusChange() {
@@ -128,37 +187,37 @@ export function useDispatchStatusChange() {
   return { dispatchStatusChange }
 }
 
-export function useLoadingStatus(_id: string) {
+export function useLoadingStatus(_element: ModuleHostElement) {
   const { dispatchStatusChange } = useDispatchStatusChange()
 
   const setError = useCallback(
-    (id = _id) => {
+    (element = _element) => {
       dispatchStatusChange({
         type: ACTIONS.CHILD_ERRORED,
-        payload: { id, status: STATUS.ERROR },
+        payload: { module: element, status: STATUS.ERROR },
       })
     },
-    [dispatchStatusChange, _id],
+    [dispatchStatusChange, _element],
   )
 
   const setLoading = useCallback(
-    (id = _id) => {
+    (element = _element) => {
       dispatchStatusChange({
         type: ACTIONS.CHILD_LOADING,
-        payload: { id, status: STATUS.LOADING },
+        payload: { module: element, status: STATUS.LOADING },
       })
     },
-    [dispatchStatusChange, _id],
+    [dispatchStatusChange, _element],
   )
 
   const setLoaded = useCallback(
-    (id = _id) => {
+    (element = _element) => {
       dispatchStatusChange({
         type: ACTIONS.CHILD_LOADED,
-        payload: { id, status: STATUS.IDLE },
+        payload: { module: element, status: STATUS.IDLE },
       })
     },
-    [dispatchStatusChange, _id],
+    [dispatchStatusChange, _element],
   )
 
   return { setError, setLoading, setLoaded }
