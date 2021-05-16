@@ -7,62 +7,67 @@ import React, {
   useEffect,
   useCallback,
   useLayoutEffect,
-  useRef
-} from "react";
-import { createBrowserHistory } from "history";
-import { useRegistry, useHost, LoadingStatusProvider, LOADING_STATUS, useLoadingStatus, useDispatchStatusChange } from "@portals/core";
+} from 'react'
+import { createBrowserHistory } from 'history'
+import {
+  useRegistry,
+  useHost,
+  useModuleStatus,
+  useLoadingStatus,
+  MODULE_STATUS,
+} from '@portals/core'
 
 // Should we move core utils to its own package so that they can be shared?
 function noop() {}
 
 function initHistory() {
-  return createBrowserHistory();
+  return createBrowserHistory()
 }
 
 function getActiveView(location: Location) {
-  const { search } = location;
-  const params = new URLSearchParams(search);
-  return params.get("view");
+  const { search } = location
+  const params = new URLSearchParams(search)
+  return params.get('view')
 }
 
 function setActiveLocationView(history: History, newView: string) {
   if (newView === getActiveView(history.location)) {
-    return newView;
+    return newView
   }
 
-  const { search } = history.location;
-  const params = new URLSearchParams(search);
+  const { search } = history.location
+  const params = new URLSearchParams(search)
 
-  params.set("view", newView);
-  history.push({ search: `?${params.toString().replace(/%2C/g, ",")}` });
+  params.set('view', newView)
+  history.push({ search: `?${params.toString().replace(/%2C/g, ',')}` })
 
-  return newView;
+  return newView
 }
 
 enum NAVIGATION_STATUS {
-  ERROR = "ERROR",
-  SUCCESS = "SUCCESS"
+  ERROR = 'ERROR',
+  SUCCESS = 'SUCCESS',
 }
 
 interface IViewContext {
-  activeView: string;
-  nextView: string | null;
-  setView: Dispatch<SetStateAction<string>>;
-  onNavigationStatusChange: (status: NAVIGATION_STATUS) => void;
+  activeView: string
+  nextView: string | null
+  setView: Dispatch<SetStateAction<string>>
+  onNavigationStatusChange: (status: NAVIGATION_STATUS) => void
 }
 
-type ISetViewFunction = (newState: string) => string;
+type ISetViewFunction = (newState: string) => string
 
 const ViewContext = createContext<IViewContext>({
-  activeView: "",
+  activeView: '',
   nextView: null,
   setView: noop,
-  onNavigationStatusChange: noop
-});
+  onNavigationStatusChange: noop,
+})
 
 interface IViewState {
-  active: string;
-  next: string | null;
+  active: string
+  next: string | null
 }
 
 interface ViewProviderProps {
@@ -70,37 +75,37 @@ interface ViewProviderProps {
 }
 
 export function ViewProvider({ children }: ViewProviderProps) {
-  const [history] = useState(initHistory);
+  const [history] = useState(initHistory)
   const [viewState, setViewState] = useState<IViewState>({
     // TODO: Handle null case instead of type cast
     active: getActiveView(history.location) as string,
-    next: null
-  });
+    next: null,
+  })
 
   const setView = useCallback((view: string | ISetViewFunction): void => {
-    setViewState((vs) => ({
+    setViewState(vs => ({
       active: vs.active,
-      next: typeof view === "function" ? view(vs.active) : view
-    }));
-  }, []);
+      next: typeof view === 'function' ? view(vs.active) : view,
+    }))
+  }, [])
 
   const onNavigationStatusChange = useCallback(
     (status: NAVIGATION_STATUS) => {
       if (status === NAVIGATION_STATUS.ERROR) {
-        setViewState((vs) => ({ active: vs.active, next: null }));
+        setViewState(vs => ({ active: vs.active, next: null }))
       } else {
         if (status === NAVIGATION_STATUS.SUCCESS) {
           // @ts-ignore
-          setViewState((vs) => {
+          setViewState(vs => {
             // @ts-ignore
-            setActiveLocationView(history, vs.next);
-            return { active: vs.next, next: null };
-          });
+            setActiveLocationView(history, vs.next)
+            return { active: vs.next, next: null }
+          })
         }
       }
     },
-    [history, setViewState]
-  );
+    [history, setViewState],
+  )
 
   return (
     <ViewContext.Provider
@@ -108,12 +113,12 @@ export function ViewProvider({ children }: ViewProviderProps) {
         activeView: viewState.active,
         nextView: viewState.next,
         setView,
-        onNavigationStatusChange
+        onNavigationStatusChange,
       }}
     >
       {children}
     </ViewContext.Provider>
-  );
+  )
 }
 
 export function useView(name?: string) {
@@ -121,87 +126,69 @@ export function useView(name?: string) {
     activeView,
     nextView,
     setView,
-    onNavigationStatusChange
-  } = useContext(ViewContext);
+    onNavigationStatusChange,
+  } = useContext(ViewContext)
 
   return {
     isActive: name === activeView,
     isPreloading: name === nextView,
     navigate: setView,
     pendingNavigation: nextView !== null,
-    onNavigationStatusChange
-  };
+    onNavigationStatusChange,
+  }
 }
 
 interface ViewProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 function getAttribute(element: Element, attribute: string) {
-  return element.attributes.getNamedItem(attribute)?.value;
+  return element.attributes.getNamedItem(attribute)?.value
 }
 
 export function View({ children }: ViewProps) {
-  const { host } = useHost();
-  const { registry } = useRegistry();
-  const name = getAttribute(host, "name");
-  const { isActive, isPreloading, onNavigationStatusChange } = useView(name);
-  const { dispatchStatusChange } = useDispatchStatusChange();
-  const initialDisplayStyle = useRef(host.style.display);
-  const id = host.moduleId;
-  // const { setLoaded } = useLoadingStatus(id);
+  const { host } = useHost()
+  const { registry } = useRegistry()
+  const name = getAttribute(host, 'name')
+  const { isActive, isPreloading, onNavigationStatusChange } = useView(name)
+  const { setHidden, setLoaded } = useModuleStatus(host)
+  const { loadingStatus } = useLoadingStatus(host)
 
-  // useEffect(() => {
-  //   if (!isActive) {
-  //     registry.getElements().forEach((e) => {
-  //       setLoaded(e.moduleId);
-  //     });
-  //   }
-  // }, [isActive, setLoaded, registry]);
+  useEffect(() => {
+    if (!isActive) {
+      // Set the view itself to hidden.
+      setHidden();
+      registry.getElements().forEach(e => {
+        setHidden(e)
+      })
+    }
+  }, [isActive, setHidden, registry])
 
   useLayoutEffect(() => {
     if (isActive) {
-      host.style.display = initialDisplayStyle.current;
+      host.style.display = 'block'
     } else {
-      host.style.display = "none";
+      host.style.display = 'none'
     }
-  }, [isActive, name, host, initialDisplayStyle]);
+  }, [isActive, host])
 
-  const onNavigationPreloadStatusChange = useCallback(
-    onNavigation(onNavigationStatusChange),
-    [onNavigationStatusChange]
-  );
+  useEffect(() => {
+    console.log('View loading status', { loadingStatus })
+    if (isPreloading) {
+      // Set View itself to loaded
+      setLoaded()
+      if (loadingStatus === MODULE_STATUS.ERROR) {
+        return onNavigationStatusChange(NAVIGATION_STATUS.ERROR)
+      }
+      if (loadingStatus === MODULE_STATUS.RENDERED) {
+        return onNavigationStatusChange(NAVIGATION_STATUS.SUCCESS)
+      }
+    }
+  }, [isPreloading, loadingStatus, onNavigationStatusChange, setLoaded])
 
   return isActive || isPreloading ? (
-    <div style={isPreloading ? { display: "none", visibility: "hidden" } : {}}>
-      <LoadingStatusProvider
-        registry={registry}
-        onStatusChanged={
-          // When preloading a view we don't want to report the loading
-          // state to a LoadingManager higher in the tree because it is
-          // hidden from the user and should not count as loading.
-          // Once a preloaded View becomes active it is already loaded and
-          // therefore the state can stay "loading: false", as it is the case
-          // for a none-active View.
-          isPreloading ? onNavigationPreloadStatusChange : undefined
-        }
-        onDispatch={dispatchStatusChange}
-      >
-        {children}
-      </LoadingStatusProvider>
+    <div style={isPreloading ? { display: 'none', visibility: 'hidden' } : {}}>
+      {children}
     </div>
-  ) : null;
-}
-
-function onNavigation(
-  onNavigationStatusChange: IViewContext["onNavigationStatusChange"]
-) {
-  return (status: LOADING_STATUS) => {
-    if (status === LOADING_STATUS.ERROR) {
-      return onNavigationStatusChange(NAVIGATION_STATUS.ERROR);
-    }
-    if (status === LOADING_STATUS.IDLE) {
-      return onNavigationStatusChange(NAVIGATION_STATUS.SUCCESS);
-    }
-  };
+  ) : null
 }

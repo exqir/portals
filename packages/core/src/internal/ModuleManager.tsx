@@ -1,9 +1,16 @@
 import type { ReactElement, FC } from 'react'
-import React, { Suspense, useEffect, useState, useCallback, Children, useLayoutEffect } from 'react'
+import React, {
+  Suspense,
+  useEffect,
+  useState,
+  useCallback,
+  Children,
+  useLayoutEffect,
+} from 'react'
 
 import type { IOnInitHook } from '../types/definitions'
 import {
-  useLoadingStatus,
+  useModuleStatus,
   // LOADING_STATUS,
   LoadingStatusProvider,
 } from '../provider/LoadingStatusProvider'
@@ -44,7 +51,7 @@ export function ModuleManager<Payload>({
     host.moduleMounted()
   }, [host])
 
-  const { setError, setLoading, setLoaded } = useLoadingStatus(host)
+  const { setError, setLoading, setLoaded } = useModuleStatus(host)
 
   useEffect(() => {
     if (error) setError()
@@ -80,11 +87,15 @@ export function ModuleManager<Payload>({
   //   [id],
   // )
 
-  return loading ? (
-          <options.Loading />
-        ) : error ? (
-          <options.Error />
-        ) : (
-          <Module data={data} {...props} />
-        )
+  return (
+    <Suspense fallback={null}>
+      {loading ? (
+        <options.Loading />
+      ) : error ? (
+        <options.Error />
+      ) : (
+        <Module data={data} {...props} />
+      )}
+    </Suspense>
+  )
 }

@@ -11,9 +11,11 @@ export type {
 export {
   LoadingStatusProvider,
   LOADING_STATUS,
-  useDispatchStatusChange,
+  useModuleStatus,
   useLoadingStatus,
 } from './provider/LoadingStatusProvider'
+
+export { MODULE_STATUS } from './internal/ModuleHostElement'
 
 export { Outlet } from './internal/Outlet'
 

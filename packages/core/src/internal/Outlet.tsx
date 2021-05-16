@@ -12,7 +12,7 @@ import React, {
 
 import { useHost } from '../provider/HostProvider'
 import { useRegistry } from '../provider/RegistryProvider'
-import { useLoadingStatus } from '../provider/LoadingStatusProvider'
+import { useModuleStatus } from '../provider/LoadingStatusProvider'
 import { isUndefined, isModuleHostElement, isFunction } from './utils'
 
 interface IOutletHostContext {
@@ -30,7 +30,7 @@ interface IOutletProps {
 export function Outlet({ slot, condition, fallback }: IOutletProps) {
   const { moduleId, host } = useHost()
   const { children } = useOutletContent(slot)
-  const { setHidden } = useLoadingStatus(host)
+  const { setHidden } = useModuleStatus(host)
   const { registry } = useRegistry()
   const [outlet, setOutlet] = useState(null)
   const shouldRender = isUndefined(condition)

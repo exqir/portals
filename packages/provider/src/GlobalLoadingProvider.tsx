@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import React, { Fragment, useCallback, useState } from 'react'
-import { useBootstrapOptions, useRegistry, LoadingStatusProvider, LOADING_STATUS } from '@portals/core'
+import React, { Fragment, useState, useEffect } from 'react'
+import { useBootstrapOptions, useLoadingStatus, LOADING_STATUS } from '@portals/core'
 
 interface IGlobalLoadingIndiactorState {
   status: LOADING_STATUS
@@ -13,16 +13,19 @@ interface GlobalLoadingProviderProps {
 
 export function GlobalLoadingProvider({ children }: GlobalLoadingProviderProps) {
   const { options } = useBootstrapOptions()
-  const { registry } = useRegistry()
+  const { loadingStatus } = useLoadingStatus()
+
   const [{ status }, setState] = useState<IGlobalLoadingIndiactorState>({
     status: LOADING_STATUS.INIT,
   })
 
-  const onStatusChange = useCallback((status: LOADING_STATUS) => {
-    setState({
-      status,
-    })
-  }, [])
+  useEffect(() => {
+    if (loadingStatus === LOADING_STATUS.IDLE || LOADING_STATUS.ERROR || LOADING_STATUS.LOADING) {
+      console.log('Global loading status', { loadingStatus})
+      // @ts-ignore
+      setState({ status: loadingStatus})
+    }
+  }, [loadingStatus])
 
   const isLoading = status === LOADING_STATUS.INIT || status === LOADING_STATUS.LOADING
 
@@ -53,16 +56,7 @@ export function GlobalLoadingProvider({ children }: GlobalLoadingProviderProps) 
           {status === LOADING_STATUS.ERROR ? <options.Error /> : <options.Loading />}
         </div>
       ) : null}
-      {/* Once the LoadingManger has reported an Error or Idle the GlobalLoadingIndicator
-      is not concerened with further loading events because it should only handle the inital
-      global loading. Future loading events should only concerne specific Views or modules
-      and should be handled locally. */}
-      <LoadingStatusProvider
-        registry={registry}
-        onStatusChanged={isLoading ? onStatusChange : undefined}
-      >
-        {children}
-      </LoadingStatusProvider>
+      {children}
     </Fragment>
   )
 }

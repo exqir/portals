@@ -11,6 +11,7 @@ import type {
   IModuleDefinition,
 } from '../types/definitions'
 import { RegistryProvider } from '../provider/RegistryProvider'
+import { LoadingStatusProvider } from '../provider/LoadingStatusProvider'
 import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
 import { HostProvider, useHost } from '../provider/HostProvider'
 import { useOutlet, OutletProvider } from './Outlet'
@@ -34,9 +35,11 @@ export function App({
   return (
     <BootstrapOptionsProvider options={options}>
       <RegistryProvider registry={registry}>
-        <Suspense fallback={null}>
-          <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules)} />
-        </Suspense>
+        <LoadingStatusProvider registry={registry}>
+          <Suspense fallback={null}>
+            <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules)} />
+          </Suspense>
+        </LoadingStatusProvider>
       </RegistryProvider>
     </BootstrapOptionsProvider>
   )

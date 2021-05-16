@@ -1,16 +1,14 @@
 import type { ReactNode, Dispatch } from 'react'
 import React, {
   useReducer,
-  createContext,
-  useContext,
-  useEffect,
   useCallback,
 } from 'react'
 
 import type { IRegistry } from '../types/definitions'
 import type { ModuleHostElement } from '../internal/ModuleHostElement'
 import { MODULE_STATUS } from '../internal/ModuleHostElement'
-import { noop } from '../internal/utils'
+import { createContext } from '../createProvider'
+import { isUndefined } from '../internal/utils'
 
 export enum LOADING_STATUS {
   INIT = 'INIT',
@@ -207,112 +205,92 @@ function loadingReducer(state: ILoadingState, action: ILoadingAction) {
 }
 
 interface ILoadingContext {
-  dispatchStatusChange: Dispatch<ILoadingAction>
+  state: ILoadingState
+  dispatch: Dispatch<ILoadingAction>
 }
 
-const LoadingContext = createContext<ILoadingContext>({
-  dispatchStatusChange: noop,
-})
+const [LoadingContext, useLoadingContext] = createContext<ILoadingContext>('LoadingContext')
 
 interface ILoadingStatusProviderProps {
   registry: IRegistry
-  onStatusChanged?: (status: LOADING_STATUS) => void
-  onDispatch?: (action: ILoadingAction) => void
   children: ReactNode
 }
 
 export function LoadingStatusProvider({
   registry,
-  onStatusChanged,
-  onDispatch,
   children,
 }: ILoadingStatusProviderProps) {
-  const [{ status }, dispatch] = useReducer(loadingReducer, registry, initState)
-
-  useEffect(() => {
-    // If we don't exclude INIT then this will be published as well
-    // and considered a changed status.
-    // In the ModuleManager this is threated like finished loading
-    // and therefore it finishes to early.
-    // When considered loading in the ModuleManager then loading never
-    // finishes as none loading children publish INIT but never change
-    // to IDLE afterwards.
-    if (
-      typeof onStatusChanged === 'function' &&
-      status !== LOADING_STATUS.INIT
-    ) {
-      onStatusChanged(status)
-    }
-  }, [status, onStatusChanged])
-
-  const dispatchStatusChange = useCallback(
-    (action: ILoadingAction) => {
-      dispatch(action)
-      if (typeof onDispatch === 'function') {
-        onDispatch(action)
-      }
-    },
-    [dispatch, onDispatch],
-  )
+  const [state, dispatch] = useReducer(loadingReducer, registry, initState)
 
   return (
-    <LoadingContext.Provider value={{ dispatchStatusChange }}>
+    <LoadingContext state={state} dispatch={dispatch}>
       {children}
-    </LoadingContext.Provider>
+    </LoadingContext>
   )
 }
 
-export function useDispatchStatusChange() {
-  const { dispatchStatusChange } = useContext(LoadingContext)
+export function useLoadingStatus(element?: ModuleHostElement): { loadingStatus: MODULE_STATUS | LOADING_STATUS} {
+  const { state } = useLoadingContext();
 
-  return { dispatchStatusChange }
+  if (isUndefined(element)) {
+    return { loadingStatus: state.status }
+  }
+
+  const id = element.moduleId
+  const node = state.modules[id]
+
+  if (isUndefined(node)) {
+    throw new Error(`Failed to find loading status: Element with id ${id} does not exist in loading state.`)
+  }
+
+  return { loadingStatus: node.treeStatus}
 }
 
-export function useLoadingStatus(_element: ModuleHostElement) {
-  const { dispatchStatusChange } = useDispatchStatusChange()
+export function useModuleStatus(_element: ModuleHostElement) {
+  const { dispatch } = useLoadingContext()
 
   const setError = useCallback(
     (element: ModuleHostElement = _element) => {
       element.setStatus(MODULE_STATUS.ERROR)
-      dispatchStatusChange({
+      dispatch({
         type: ACTIONS.MODULE_ERRORED,
         payload: { module: element, status: MODULE_STATUS.ERROR },
       })
     },
-    [dispatchStatusChange, _element],
+    [dispatch, _element],
   )
 
   const setLoading = useCallback(
     (element: ModuleHostElement = _element) => {
       element.setStatus(MODULE_STATUS.LOADING)
-      dispatchStatusChange({
+      dispatch({
         type: ACTIONS.MODULE_LOADING,
         payload: { module: element, status: MODULE_STATUS.LOADING },
       })
     },
-    [dispatchStatusChange, _element],
+    [dispatch, _element],
   )
 
   const setLoaded = useCallback(
     (element: ModuleHostElement = _element) => {
       element.setStatus(MODULE_STATUS.RENDERED)
-      dispatchStatusChange({
+      dispatch({
         type: ACTIONS.MODULE_RENDERED,
         payload: { module: element, status: MODULE_STATUS.RENDERED },
       })
     },
-    [dispatchStatusChange, _element],
+    [dispatch, _element],
   )
 
   const setHidden = useCallback(
     (element: ModuleHostElement = _element) => {
       element.setStatus(MODULE_STATUS.HIDDEN)
-      dispatchStatusChange({
+      dispatch({
         type: ACTIONS.MODULE_HIDDEN,
         payload: { module: element, status: MODULE_STATUS.HIDDEN },
       })
     },
-    [dispatchStatusChange, _element],
+    [dispatch, _element],
   )
 
   return { setError, setLoading, setLoaded, setHidden }
