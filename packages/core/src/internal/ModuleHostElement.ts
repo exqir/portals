@@ -64,10 +64,6 @@ export class ModuleHostElement extends HTMLElement {
     return status;
   }
 
-  moduleMounted() {
-    this.setAttribute(STATUS_ATTRIBUTE, MODULE_STATUS.RENDERED)
-  }
-
   hide() {
     this.style.display = 'none';
     this.style.visibility = 'hidden'
