@@ -1,11 +1,18 @@
-import { ReactNode, Dispatch, useCallback } from 'react'
-import React, { useReducer, createContext, useContext, useEffect, Suspense } from 'react'
+import type { ReactNode, Dispatch } from 'react'
+import React, {
+  useReducer,
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react'
 
 import type { IRegistry } from '../types/definitions'
 import type { ModuleHostElement } from '../internal/ModuleHostElement'
+import { MODULE_STATUS } from '../internal/ModuleHostElement'
 import { noop } from '../internal/utils'
 
-export enum STATUS {
+export enum LOADING_STATUS {
   INIT = 'INIT',
   IDLE = 'IDLE',
   LOADING = 'LOADING',
@@ -13,94 +20,186 @@ export enum STATUS {
 }
 
 enum ACTIONS {
-  CHILD_LOADING = 'CHILD_LOADING',
-  CHILD_LOADED = 'CHILD_LOADED',
-  CHILD_ERRORED = 'CHILD_ERRORED',
+  MODULE_LOADING = 'MODULE_LOADING',
+  MODULE_RENDERED = 'MODULE_RENDERED',
+  MODULE_ERRORED = 'MODULE_ERRORED',
+  MODULE_HIDDEN = 'MODULE_HIDDEN',
 }
 
+interface INode {
+  nodeStatus: MODULE_STATUS
+  treeStatus: MODULE_STATUS
+  module: ModuleHostElement
+  parent: string | null
+  children: string[]
+}
+
+interface IModules {
+  [id: string]: INode
+}
 interface ILoadingState {
-  status: STATUS
-  watching: { module: ModuleHostElement; status: STATUS }[]
+  status: LOADING_STATUS
+  modules: IModules
 }
 
 type ILoadingAction = {
   type: ACTIONS
-  payload: { module: ModuleHostElement; status: STATUS }
-} | { type: 'FINISHED_RENDERING',
+  payload: { module: ModuleHostElement, status: MODULE_STATUS }
 }
 
-function getModuleStatus(element: ModuleHostElement) {
-  return element.attributes.getNamedItem('data-module-status')?.value
+function getNodeTreeStatus(modules: IModules, node: INode): MODULE_STATUS {
+  // If the node itself is not rendered then the whole tree
+  // can not be considered as rendered.
+  if (node.nodeStatus !== MODULE_STATUS.RENDERED) {
+    return node.nodeStatus
+  }
+
+  let status: MODULE_STATUS = node.nodeStatus
+  for (const childId of node.children) {
+    // If one of the childrens trees is in a dirty state
+    // then the parents tree is in the same dirty state
+    switch (modules[childId].treeStatus) {
+      case MODULE_STATUS.ERROR: {
+        return MODULE_STATUS.ERROR
+      }
+      // Treat Registered modules as still loading
+      case MODULE_STATUS.REGISTERED:
+      case MODULE_STATUS.LOADING: {
+        status = MODULE_STATUS.LOADING
+        break
+      }
+      // Ignore hidden children
+      // case MODULE_STATUS.HIDDEN: {
+      //   // Loading takes presedence over hidden
+      //   if (status !== MODULE_STATUS.LOADING) {
+      //     status = MODULE_STATUS.HIDDEN
+      //   }
+      //   break;
+      // }
+    }
+  }
+
+  return status
 }
 
-function getAllElements(registry: IRegistry): ModuleHostElement[] {
-  const elements: ModuleHostElement[] = []
+function getLoadingStatus(modules: IModules): LOADING_STATUS {
+  const topLevelModules = Object.values(modules).filter(
+    node => node.parent === null,
+  )
+
+  let status = LOADING_STATUS.INIT
+  for (const module of topLevelModules) {
+    switch (module.treeStatus) {
+      case MODULE_STATUS.ERROR:
+        return LOADING_STATUS.ERROR
+      case MODULE_STATUS.LOADING: {
+        status = LOADING_STATUS.LOADING
+        break
+      }
+      case MODULE_STATUS.RENDERED: {
+        if (status === LOADING_STATUS.INIT) {
+          status = LOADING_STATUS.IDLE
+        }
+        break
+      }
+    }
+  }
+
+  return status
+}
+
+function getAllElements(
+  registry: IRegistry,
+  parent: string | null = null,
+): IModules {
+  let modules: IModules = {}
 
   registry.getElements().forEach(element => {
-    elements.push(element)
+    const id = element.moduleId
+    let children: IModules = {}
+
     const childrenRegistry = registry.getRegistry(element)
     if (childrenRegistry?.getElements().length) {
-      getAllElements(childrenRegistry).forEach(e => {
-        elements.push(e);
-      })
+      children = getAllElements(childrenRegistry, id)
+      modules = { ...modules, ...children }
     }
+
+    const node: INode = {
+      module: element,
+      parent,
+      children: Object.values(children)
+      // TODO: Only add direct children as children in a better way
+        .filter(c => c.parent === id)
+        .map(c => c.module.moduleId),
+      nodeStatus: MODULE_STATUS.REGISTERED,
+      treeStatus: MODULE_STATUS.REGISTERED,
+    }
+
+    modules[id] = node
   })
-  console.log(elements)
-  return elements
+
+  return modules
 }
 
-function initState(registry: IRegistry) {
+function initState(registry: IRegistry): ILoadingState {
   return {
-    status: STATUS.INIT,
-    watching: getAllElements(registry).map((host) => ({
-      module: host,
-      status: STATUS.INIT,
-    })),
+    status: LOADING_STATUS.INIT,
+    modules: getAllElements(registry),
   }
+}
+
+function updateAffectedParents(modules: IModules, node: INode): IModules {
+  let updatedModules = { ...modules }
+
+  let parentId = node.parent
+  while (parentId) {
+    const parent = updatedModules[parentId]
+    const treeStatus = getNodeTreeStatus(updatedModules, parent)
+
+    if (treeStatus === parent.treeStatus) {
+      // The treeStatus has not changed, therefore the parents further
+      // up the tree will also not change.
+      break
+    }
+
+    updatedModules[parentId] = { ...parent, treeStatus }
+
+    parentId = parent.parent
+  }
+
+  return updatedModules
 }
 
 function loadingReducer(state: ILoadingState, action: ILoadingAction) {
   console.log(state, action)
   switch (action.type) {
-    case 'FINISHED_RENDERING': {
-      console.log('Finished loading')
-      return state
-    }
-    case ACTIONS.CHILD_LOADING: {
-      return {
-        ...state,
-        status: STATUS.LOADING,
-        watching: [
-          ...state.watching.filter(({ module }) => module !== action.payload.module),
-          action.payload,
-        ]
+    case ACTIONS.MODULE_ERRORED:
+    case ACTIONS.MODULE_LOADING:
+    case ACTIONS.MODULE_HIDDEN:
+    case ACTIONS.MODULE_RENDERED: {
+      const { module, status } = action.payload
+      const id = module.moduleId
+
+      const changedModule = {
+        ...state.modules[id],
+        nodeStatus: status,
       }
-    }
-    case ACTIONS.CHILD_ERRORED: {
-      return {
-        ...state,
-        status: STATUS.ERROR,
-        watching: [
-          ...state.watching.filter(({ module }) => module !== action.payload.module),
-          action.payload,
-        ]
+      const modulesCopy = {
+        ...state.modules,
+        [id]: {
+          ...changedModule,
+          treeStatus: getNodeTreeStatus(state.modules, changedModule),
+        },
       }
-    }
-    case ACTIONS.CHILD_LOADED: {
-      const watching = [
-        ...state.watching.filter(({ module }) => module !== action.payload.module),
-        action.payload,
-      ]
-      const status = watching.some(({ module, status: s }) => getModuleStatus(module) === 'mounted' && s === STATUS.ERROR)
-        ? STATUS.ERROR
-        : watching.some(({ module, status: s }) => { const v = getModuleStatus(module) === 'mounted' && (s === STATUS.LOADING || s === STATUS.INIT); console.log(v, module, s); return v})
-        ? STATUS.LOADING
-        : STATUS.IDLE
-      return {
+      const updatedModules = updateAffectedParents(modulesCopy, changedModule)
+
+      const newState = {
         ...state,
-        status,
-        watching,
+        status: getLoadingStatus(updatedModules),
+        modules: updatedModules,
       }
+
+      return newState
     }
     default:
       throw Error(`Unsupported action ${action.type}.`)
@@ -117,7 +216,7 @@ const LoadingContext = createContext<ILoadingContext>({
 
 interface ILoadingStatusProviderProps {
   registry: IRegistry
-  onStatusChanged?: (status: STATUS) => void
+  onStatusChanged?: (status: LOADING_STATUS) => void
   onDispatch?: (action: ILoadingAction) => void
   children: ReactNode
 }
@@ -128,11 +227,7 @@ export function LoadingStatusProvider({
   onDispatch,
   children,
 }: ILoadingStatusProviderProps) {
-  const [{ status }, dispatch] = useReducer(
-    loadingReducer,
-    registry,
-    initState,
-  )
+  const [{ status }, dispatch] = useReducer(loadingReducer, registry, initState)
 
   useEffect(() => {
     // If we don't exclude INIT then this will be published as well
@@ -142,7 +237,10 @@ export function LoadingStatusProvider({
     // When considered loading in the ModuleManager then loading never
     // finishes as none loading children publish INIT but never change
     // to IDLE afterwards.
-    if (typeof onStatusChanged === 'function' && status !== STATUS.INIT) {
+    if (
+      typeof onStatusChanged === 'function' &&
+      status !== LOADING_STATUS.INIT
+    ) {
       onStatusChanged(status)
     }
   }, [status, onStatusChanged])
@@ -157,28 +255,11 @@ export function LoadingStatusProvider({
     [dispatch, onDispatch],
   )
 
-  const onFinishedLoading = useCallback(() => {
-    dispatch({ type: 'FINISHED_RENDERING' })
-  }, [])
-
   return (
-    <Suspense fallback={<Unmount onUnmount={onFinishedLoading} />}>
-      <LoadingContext.Provider value={{ dispatchStatusChange }}>
-        {children}
-      </LoadingContext.Provider>
-    </Suspense>
+    <LoadingContext.Provider value={{ dispatchStatusChange }}>
+      {children}
+    </LoadingContext.Provider>
   )
-}
-
-function Unmount({ onUnmount }) {
-  useEffect(() => {
-    return () => {
-      debugger
-      onUnmount()
-    }
-  }, [])
-
-  return null
 }
 
 export function useDispatchStatusChange() {
@@ -191,34 +272,48 @@ export function useLoadingStatus(_element: ModuleHostElement) {
   const { dispatchStatusChange } = useDispatchStatusChange()
 
   const setError = useCallback(
-    (element = _element) => {
+    (element: ModuleHostElement = _element) => {
+      element.setStatus(MODULE_STATUS.ERROR)
       dispatchStatusChange({
-        type: ACTIONS.CHILD_ERRORED,
-        payload: { module: element, status: STATUS.ERROR },
+        type: ACTIONS.MODULE_ERRORED,
+        payload: { module: element, status: MODULE_STATUS.ERROR },
       })
     },
     [dispatchStatusChange, _element],
   )
 
   const setLoading = useCallback(
-    (element = _element) => {
+    (element: ModuleHostElement = _element) => {
+      element.setStatus(MODULE_STATUS.LOADING)
       dispatchStatusChange({
-        type: ACTIONS.CHILD_LOADING,
-        payload: { module: element, status: STATUS.LOADING },
+        type: ACTIONS.MODULE_LOADING,
+        payload: { module: element, status: MODULE_STATUS.LOADING },
       })
     },
     [dispatchStatusChange, _element],
   )
 
   const setLoaded = useCallback(
-    (element = _element) => {
+    (element: ModuleHostElement = _element) => {
+      element.setStatus(MODULE_STATUS.RENDERED)
       dispatchStatusChange({
-        type: ACTIONS.CHILD_LOADED,
-        payload: { module: element, status: STATUS.IDLE },
+        type: ACTIONS.MODULE_RENDERED,
+        payload: { module: element, status: MODULE_STATUS.RENDERED },
       })
     },
     [dispatchStatusChange, _element],
   )
 
-  return { setError, setLoading, setLoaded }
+  const setHidden = useCallback(
+    (element: ModuleHostElement = _element) => {
+      element.setStatus(MODULE_STATUS.HIDDEN)
+      dispatchStatusChange({
+        type: ACTIONS.MODULE_HIDDEN,
+        payload: { module: element, status: MODULE_STATUS.HIDDEN },
+      })
+    },
+    [dispatchStatusChange, _element],
+  )
+
+  return { setError, setLoading, setLoaded, setHidden }
 }

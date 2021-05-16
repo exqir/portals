@@ -1,7 +1,19 @@
 import type { IRegistry } from '../types/definitions'
 
-import { isModuleHostElement } from './utils'
+import { isModuleHostElement, isUndefined } from './utils'
 import { createRegistry } from './registry'
+
+export enum MODULE_STATUS {
+  REGISTERED = 'registered',
+  LOADING = 'loading',
+  ERROR = 'error',
+  RENDERED = 'rendered',
+  HIDDEN = 'hidden',
+}
+
+const ID_ATTRIBUTE = 'data-module-id'
+const STATUS_ATTRIBUTE = 'data-module-status'
+
 export class ModuleHostElement extends HTMLElement {
   public moduleId: string
   private _registry: Set<ModuleHostElement>
@@ -18,8 +30,7 @@ export class ModuleHostElement extends HTMLElement {
       Math.random().toString(36).substr(2, 9),
     ].join('-')
 
-    this.setAttribute('data-module-id', this.moduleId)
-    this.setAttribute('data-module-status', 'loading')
+    this.setAttribute(ID_ATTRIBUTE, this.moduleId)
     // Render all HostElements as block for consistent layout.
     this.style.display = 'block'
 
@@ -28,6 +39,7 @@ export class ModuleHostElement extends HTMLElement {
 
   connectedCallback(): void {
     this._registry.add(this)
+    this.setStatus(MODULE_STATUS.REGISTERED);
   }
 
   disconnectedCallback(): void {
@@ -38,13 +50,28 @@ export class ModuleHostElement extends HTMLElement {
     this._children.register(element, element._children)
   }
 
+  setStatus(status: MODULE_STATUS) {
+    this.setAttribute(STATUS_ATTRIBUTE, status)
+  }
+
+  getStatus(): MODULE_STATUS {
+    const status = (this.getAttributeNode(STATUS_ATTRIBUTE)?.value as MODULE_STATUS | undefined)
+
+    if (isUndefined(status)) {
+      throw new Error('Invalid module: Module has no status.')
+    }
+
+    return status;
+  }
+
   moduleMounted() {
-    this.setAttribute('data-module-status', 'mounted')
+    this.setAttribute(STATUS_ATTRIBUTE, MODULE_STATUS.RENDERED)
   }
 
   hide() {
     this.style.display = 'none';
     this.style.visibility = 'hidden'
+    this.setStatus(MODULE_STATUS.HIDDEN);
   }
 
   renderChildren() {
@@ -89,7 +116,7 @@ function isNestedModule(element: ModuleHostElement): boolean {
   return (
     element ===
     document.querySelector(
-      `[data-module-id] [data-module-id=${element.moduleId}]`,
+      `[${ID_ATTRIBUTE}] [${ID_ATTRIBUTE}=${element.moduleId}]`,
     )
   )
 }

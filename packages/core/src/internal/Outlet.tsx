@@ -28,9 +28,9 @@ interface IOutletProps {
 }
 
 export function Outlet({ slot, condition, fallback }: IOutletProps) {
-  const { moduleId } = useHost()
+  const { moduleId, host } = useHost()
   const { children } = useOutletContent(slot)
-  const { setLoaded } = useLoadingStatus(moduleId)
+  const { setHidden } = useLoadingStatus(host)
   const { registry } = useRegistry()
   const [outlet, setOutlet] = useState(null)
   const shouldRender = isUndefined(condition)
@@ -41,11 +41,13 @@ export function Outlet({ slot, condition, fallback }: IOutletProps) {
 
   useEffect(() => {
     if (!shouldRender) {
-      registry.getElements().forEach(e => {
-        setLoaded(e.moduleId)
+      Children.forEach(children, child => {
+        if (isValidElement(child) && isModuleHostElement(child.props.host)) {
+          setHidden(child.props.host)
+        }
       })
     }
-  }, [shouldRender, registry, setLoaded])
+  }, [shouldRender, registry, setHidden])
 
   return (
     <Fragment>
