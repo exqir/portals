@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Outlet, Children } from '@portals/core'
+import { Slot, Children } from '@portals/core'
 
 import { ModuleBox } from '../components/ModuleBox'
 import { Portal } from '../components/Portal'
@@ -11,7 +11,7 @@ export default function Parent() {
       <div className="inline">
         <div>
           Left slot
-          <Outlet slot="left" />
+          <Slot name="left" />
         </div>
         <p className="inline">
           <Portal /> The parent module rendering the child module.

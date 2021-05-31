@@ -13,7 +13,7 @@ import { RegistryProvider } from '../provider/RegistryProvider'
 import { LoadingStatusProvider } from '../provider/LoadingStatusProvider'
 import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
 import { HostProvider, useHost } from '../provider/HostProvider'
-import { useOutlet, ChildrenProvider } from './Outlet'
+import { ChildrenProvider } from './Children'
 import { Host } from './Host'
 import { NoopProvider } from './utils'
 

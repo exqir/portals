@@ -17,7 +17,7 @@ export {
 
 export { MODULE_STATUS } from './internal/ModuleHostElement'
 
-export { Outlet, Children } from './internal/Outlet'
+export { Slot, Children } from './internal/Children'
 export { Host } from './internal/Host'
 
 export { combineProvider } from './combineProvider'
