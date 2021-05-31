@@ -5,13 +5,12 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  Children,
+  Children as ReactChildren,
   isValidElement,
   useMemo,
 } from 'react'
 
 import { useHost } from '../provider/HostProvider'
-import { useRegistry } from '../provider/RegistryProvider'
 import { useModuleStatus } from '../provider/LoadingStatusProvider'
 import { isUndefined, isModuleHostElement, isFunction } from './utils'
 
@@ -21,33 +20,18 @@ interface IOutletHostContext {
 
 const OutletHostContext = createContext<IOutletHostContext>({ outlet: null })
 
+type Condition = boolean | (() => boolean)
 interface IOutletProps {
-  slot?: string
-  condition?: boolean | (() => boolean)
+  slot: string
+  condition?: Condition
   fallback?: ReactNode
 }
 
-export function Outlet({ slot, condition, fallback }: IOutletProps) {
-  const { moduleId, host } = useHost()
-  const { children } = useOutletContent(slot)
-  const { setHidden } = useModuleStatus(host)
-  const { registry } = useRegistry()
+export function Outlet({ slot, condition, fallback = null }: IOutletProps) {
+  const { moduleId } = useHost()
+  const { children } = useChildren(slot)
   const [outlet, setOutlet] = useState(null)
-  const shouldRender = isUndefined(condition)
-    ? true
-    : isFunction(condition)
-    ? condition()
-    : condition
-
-  useEffect(() => {
-    if (!shouldRender) {
-      Children.forEach(children, child => {
-        if (isValidElement(child) && isModuleHostElement(child.props.host)) {
-          setHidden(child.props.host)
-        }
-      })
-    }
-  }, [shouldRender, registry, setHidden])
+  const shouldRender = useCondition(condition)
 
   return (
     <Fragment>
@@ -64,6 +48,48 @@ export function Outlet({ slot, condition, fallback }: IOutletProps) {
       </div>
     </Fragment>
   )
+}
+
+interface IChildrenProps {
+  condition?: Condition
+  fallback?: ReactNode
+  map?: (child: ReactNode, index: number) => ReactNode
+}
+
+export function Children({ condition, fallback = null, map }: IChildrenProps) {
+  const { children } = useChildren()
+  const c = isFunction(map) ? ReactChildren.map(children, map) : children
+  const shouldRender = useCondition(condition)
+
+  return (
+    <Fragment>
+      {shouldRender ? (isUndefined(children) ? fallback : c) : null}
+    </Fragment>
+  )
+}
+
+function useCondition(condition?: Condition) {
+  const { host } = useHost()
+  const { children } = useChildren()
+  const { setHidden } = useModuleStatus(host)
+
+  const shouldRender = isUndefined(condition)
+    ? true
+    : isFunction(condition)
+    ? condition()
+    : condition
+
+  useEffect(() => {
+    if (!shouldRender) {
+      ReactChildren.forEach(children, child => {
+        if (isValidElement(child) && isModuleHostElement(child.props.host)) {
+          setHidden(child.props.host)
+        }
+      })
+    }
+  }, [shouldRender, children, setHidden])
+
+  return shouldRender
 }
 
 export function useOutlet() {
@@ -83,16 +109,16 @@ export function useOutlet() {
   return { outlet }
 }
 
-interface IOutletContentContext {
+interface IChildrenContext {
   content: ReactNode
   [name: string]: ReactNode
 }
 
-const OutletContentContext = createContext<IOutletContentContext>({
+const ChildrenContext = createContext<IChildrenContext>({
   content: null,
 })
 
-interface IOutletContentProps {
+interface IChildrenProviderProps {
   content: ReactNode
   children: ReactNode
 }
@@ -101,14 +127,15 @@ function getAttribute(element: Element, attribute: string) {
   return element.attributes.getNamedItem(attribute)?.value
 }
 
-// TODO: Make this a "ChildrenProvider" and don't pass the children to a Module
-// anymore and instead use the context?
-export function OutletProvider({ content, children }: IOutletContentProps) {
+export function ChildrenProvider({
+  content,
+  children,
+}: IChildrenProviderProps) {
   const ctx = useMemo(() => {
     const c: { content: ReactNode[]; [slot: string]: ReactNode } = {
       content: [],
     }
-    Children.forEach(content, child => {
+    ReactChildren.forEach(content, child => {
       if (isValidElement(child) && isModuleHostElement(child.props.host)) {
         const host = child.props.host
         const slotName = getAttribute(host, 'slot')
@@ -123,14 +150,12 @@ export function OutletProvider({ content, children }: IOutletContentProps) {
   }, [content])
 
   return (
-    <OutletContentContext.Provider value={ctx}>
-      {children}
-    </OutletContentContext.Provider>
+    <ChildrenContext.Provider value={ctx}>{children}</ChildrenContext.Provider>
   )
 }
 
-function useOutletContent(slot?: string) {
-  const context = useContext(OutletContentContext)
+function useChildren(slot?: string) {
+  const context = useContext(ChildrenContext)
 
   if (!isUndefined(slot)) {
     const { [slot]: content } = context

@@ -7,6 +7,8 @@ import React, {
   useEffect,
   useCallback,
   useLayoutEffect,
+  isValidElement,
+  cloneElement,
 } from 'react'
 import { createBrowserHistory } from 'history'
 import {
@@ -15,6 +17,8 @@ import {
   useModuleStatus,
   useLoadingStatus,
   MODULE_STATUS,
+  Children,
+  Host,
 } from '@portals/core'
 
 // Should we move core utils to its own package so that they can be shared?
@@ -138,15 +142,11 @@ export function useView(name?: string) {
   }
 }
 
-interface ViewProps {
-  children: ReactNode
-}
-
 function getAttribute(element: Element, attribute: string) {
   return element.attributes.getNamedItem(attribute)?.value
 }
 
-export function View({ children }: ViewProps) {
+export function View() {
   const { host } = useHost()
   const { registry } = useRegistry()
   const name = getAttribute(host, 'name')
@@ -157,10 +157,7 @@ export function View({ children }: ViewProps) {
   useEffect(() => {
     if (!isActive) {
       // Set the view itself to hidden.
-      setHidden();
-      registry.getElements().forEach(e => {
-        setHidden(e)
-      })
+      setHidden()
     }
   }, [isActive, setHidden, registry])
 
@@ -186,9 +183,22 @@ export function View({ children }: ViewProps) {
     }
   }, [isPreloading, loadingStatus, onNavigationStatusChange, setLoaded])
 
-  return isActive || isPreloading ? (
-    <div style={isPreloading ? { display: 'none', visibility: 'hidden' } : {}}>
-      {children}
-    </div>
-  ) : null
+  return (
+    <Children
+      condition={isActive || isPreloading}
+      map={child => {
+        if (isValidElement(child)) {
+          const { children, ...props } = child.props
+          // Wrap the modules children in Host component to render them to the actual
+          // host via portal.
+          // We can not wrap the whole children into Host because the outer-most ModuleProvider
+          // is the HostProvider which is necessary to get the host from context. Because if this
+          // the Host component needs to be a child of the HostProvider.
+          return cloneElement(child, props, <Host>{children}</Host>)
+        }
+
+        return child
+      }}
+    />
+  )
 }

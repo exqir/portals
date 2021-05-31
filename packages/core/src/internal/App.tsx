@@ -1,6 +1,5 @@
 import { ComponentType, ReactElement, ReactNode, Suspense } from 'react'
 import React from 'react'
-import { createPortal } from 'react-dom'
 
 import type {
   IModulesMap,
@@ -14,7 +13,8 @@ import { RegistryProvider } from '../provider/RegistryProvider'
 import { LoadingStatusProvider } from '../provider/LoadingStatusProvider'
 import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
 import { HostProvider, useHost } from '../provider/HostProvider'
-import { useOutlet, OutletProvider } from './Outlet'
+import { useOutlet, ChildrenProvider } from './Outlet'
+import { Host } from './Host'
 import { NoopProvider } from './utils'
 
 interface IAppProps {
@@ -37,7 +37,7 @@ export function App({
       <RegistryProvider registry={registry}>
         <LoadingStatusProvider registry={registry}>
           <Suspense fallback={null}>
-            <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules)} />
+            <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules, true)} />
           </Suspense>
         </LoadingStatusProvider>
       </RegistryProvider>
@@ -49,7 +49,8 @@ function buildModulesTree(
   registry: IRegistry,
   ModuleProvider: IProvider,
   Module: ComponentType<IModuleProps>,
-  modules: IModulesMap
+  modules: IModulesMap,
+  renderToHost = false
 ): ReactElement[] | undefined {
   return registry.getElements().map(element => {
     const elementRegistry = registry.getRegistry(element) as IRegistry
@@ -57,7 +58,7 @@ function buildModulesTree(
       <HostProvider host={element} key={element.moduleId}>
         <RegistryProvider registry={elementRegistry}>
           <ModuleProvider>
-            <Module modules={modules} children={buildModulesTree(elementRegistry, ModuleProvider, Module, modules)} />
+            <Module renderToHost={renderToHost} modules={modules} children={buildModulesTree(elementRegistry, ModuleProvider, Module, modules)} />
           </ModuleProvider>
         </RegistryProvider>
       </HostProvider>
@@ -66,25 +67,26 @@ function buildModulesTree(
 }
 
 interface IModuleProps {
+  renderToHost: boolean,
   modules: IModulesMap,
   children: ReactNode,
 }
 
-function Module({ modules, children }: IModuleProps) {
-  const { host, moduleTag } = useHost()
-  const { outlet } = useOutlet()
+function Module({ renderToHost, modules, children }: IModuleProps) {
+  const { moduleTag } = useHost()
 
   if (modules.has(moduleTag)) {
     // We can be sure that ModuleComponent is not undefined because we
     // checked that it is in the modules before.
     const ModuleComponent = modules.get(moduleTag) as IModuleDefinition
 
-    return createPortal(
-      <OutletProvider content={children}>
-        <ModuleComponent>{children}</ModuleComponent>
-      </OutletProvider>,
-      outlet ?? host,
-    )
+    const M = (
+      <ChildrenProvider content={children}>
+        <ModuleComponent />
+      </ChildrenProvider>
+    );
+
+    return renderToHost ? <Host>{M}</Host> : M
   }
   return null
 }
