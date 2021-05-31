@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
-import React, { Fragment, useCallback, useState } from 'react'
-import { useBootstrapOptions, useRegistry, LoadingStatusProvider, STATUS } from '@portals/core'
+import React, { Fragment, useState, useEffect } from 'react'
+import { useBootstrapOptions, useLoadingStatus, LOADING_STATUS } from '@portals/core'
 
 interface IGlobalLoadingIndiactorState {
-  status: STATUS
+  status: LOADING_STATUS
 }
 
 interface GlobalLoadingProviderProps {
@@ -13,22 +13,25 @@ interface GlobalLoadingProviderProps {
 
 export function GlobalLoadingProvider({ children }: GlobalLoadingProviderProps) {
   const { options } = useBootstrapOptions()
-  const { registry } = useRegistry()
+  const { loadingStatus } = useLoadingStatus()
+
   const [{ status }, setState] = useState<IGlobalLoadingIndiactorState>({
-    status: STATUS.INIT,
+    status: LOADING_STATUS.INIT,
   })
 
-  const onStatusChange = useCallback((status: STATUS) => {
-    setState({
-      status,
-    })
-  }, [])
+  useEffect(() => {
+    if (loadingStatus === LOADING_STATUS.IDLE || LOADING_STATUS.ERROR || LOADING_STATUS.LOADING) {
+      console.log('Global loading status', { loadingStatus})
+      // @ts-ignore
+      setState({ status: loadingStatus})
+    }
+  }, [loadingStatus])
 
-  const isLoading = status === STATUS.INIT || status === STATUS.LOADING
+  const isLoading = status === LOADING_STATUS.INIT || status === LOADING_STATUS.LOADING
 
   return (
     <Fragment>
-      {status === STATUS.ERROR || isLoading ? (
+      {status === LOADING_STATUS.ERROR || isLoading ? (
         // It should not contain styles at all, so this should also be made configurable.
         // Even though it is not part of core and therefore can esaily be replaced by an
         // own implementation, it is not that usefull if it has too much styles backed in
@@ -50,19 +53,10 @@ export function GlobalLoadingProvider({ children }: GlobalLoadingProviderProps) 
             opacity: '0.8'
           }}
         >
-          {status === STATUS.ERROR ? <options.Error /> : <options.Loading />}
+          {status === LOADING_STATUS.ERROR ? <options.Error /> : <options.Loading />}
         </div>
       ) : null}
-      {/* Once the LoadingManger has reported an Error or Idle the GlobalLoadingIndicator
-      is not concerened with further loading events because it should only handle the inital
-      global loading. Future loading events should only concerne specific Views or modules
-      and should be handled locally. */}
-      <LoadingStatusProvider
-        registry={registry}
-        onStatusChanged={isLoading ? onStatusChange : undefined}
-      >
-        {children}
-      </LoadingStatusProvider>
+      {children}
     </Fragment>
   )
 }

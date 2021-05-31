@@ -1,21 +1,17 @@
-import type { ReactNode } from "react";
-import React from "react";
-import { Outlet } from "@portals/core";
+import React from 'react'
+import { Slot, Children } from '@portals/core'
 
 import { ModuleBox } from '../components/ModuleBox'
 import { Portal } from '../components/Portal'
-interface IParentProps {
-  children: ReactNode;
-}
 
-export default function Parent({ children }: IParentProps) {
+export default function Parent() {
   return (
     <ModuleBox>
-      <Outlet slot="top" fallback={<p>Top slot fallback</p>} />
+      <Slot name="top" fallback={<p>Top slot fallback</p>} />
       <div className="inline">
-        <Portal/> The grand parent module rendering the parent module.
+        <Portal /> The grand parent module rendering the parent module.
       </div>
-      <Outlet />
+      <Children />
     </ModuleBox>
-  );
+  )
 }

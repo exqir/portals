@@ -10,12 +10,15 @@ export type {
 // of directly from @portals/core.
 export {
   LoadingStatusProvider,
-  STATUS,
-  useDispatchStatusChange,
+  LOADING_STATUS,
+  useModuleStatus,
   useLoadingStatus,
 } from './provider/LoadingStatusProvider'
 
-export { Outlet } from './internal/Outlet'
+export { MODULE_STATUS } from './internal/ModuleHostElement'
+
+export { Slot, Children } from './internal/Children'
+export { Host } from './internal/Host'
 
 export { combineProvider } from './combineProvider'
 export { createModule } from './createModule'
