@@ -2,17 +2,25 @@ import type { ComponentType } from 'react'
 
 import {
   createLoadableComponent,
-  ILoadableComponent,
+  ILoadableWithData,
+  ILoadableWithoutData
 } from './internal/createLoadableComponent'
 
-interface ICreateModule extends ILoadableComponent {
+interface ICreateModuleWithData<Payload> extends ILoadableWithData<Payload> {
+  moduleTag: string
+}
+interface ICreateModuleWithoutData extends ILoadableWithoutData {
   moduleTag: string
 }
 
-export function createModule<Payload = unknown>({
+export function createModule<Payload>(args: ICreateModuleWithData<Payload>): [string, ComponentType<{ data: Payload }>]
+export function createModule(args: ICreateModuleWithoutData): [string, ComponentType<{}>]
+export function createModule<Payload>({
   moduleTag,
   component,
   useInit,
-}: ICreateModule): [string, ComponentType<{ data?: Payload }>] {
+}: any): typeof useInit extends undefined
+  ? [string, ComponentType<{}>]
+  : [string, ComponentType<{ data: Payload }>] {
   return [moduleTag, createLoadableComponent({ component, useInit })]
 }

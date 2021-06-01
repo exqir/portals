@@ -26,8 +26,8 @@ export default function ModuleOne({ data }: IModuleOneProps) {
   );
 }
 
-export const useInit: IOnInitHook<string | null> = function useInitModuleOne() {
-  const [state, setState] = useState<string | null>(null);
+export const useInit: IOnInitHook<string> = function useInitModuleOne() {
+  const [state, setState] = useState<string>('');
 
   // Simulate API loading
   useEffect(() => {
@@ -40,7 +40,7 @@ export const useInit: IOnInitHook<string | null> = function useInitModuleOne() {
   return {
     data: state,
     error: undefined,
-    loading: state === null
+    loading: !state
   };
 };
 

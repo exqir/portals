@@ -17,7 +17,11 @@ const GET_EPISODES = gql`
   }
 `
 
-export const useInit: IOnInitHook = () => {
+interface Episode {
+  episode: string, id: string, name: string
+}
+
+export const useInit: IOnInitHook<Episode[]> = () => {
   const { state } = useAppState()
   const { season } = state
   const {
@@ -32,8 +36,11 @@ export const useInit: IOnInitHook = () => {
   return { loading, error, data: episodes }
 }
 
-// @ts-ignore
-export default function EpisodeSelection({ data: episodes }) {
+interface EpisodeSelectionProps {
+  data: Episode[] 
+}
+
+export default function EpisodeSelection({ data: episodes }: EpisodeSelectionProps) {
   const { state, setState } = useAppState()
   const { season, episode: selectedEpisode } = state
 
@@ -44,7 +51,6 @@ export default function EpisodeSelection({ data: episodes }) {
       <section className="episodes">
         <h2>Episodes:</h2>
         <ul>
-          {/* @ts-ignore */}
           {episodes.map(episode => (
             <li key={episode.episode}>
               <input

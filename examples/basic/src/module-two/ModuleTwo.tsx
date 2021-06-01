@@ -1,16 +1,14 @@
 import type { IOnInitHook } from "@portals/core";
-import type { ReactNode } from "react";
 import React, { useState } from "react";
 
-import { Outlet } from "@portals/core";
+import { Children } from "@portals/core";
 import { useConfig, useView, useLocalize } from "@portals/provider";
 
 interface IModuleTwoProps {
   data: string;
-  children: ReactNode;
 }
 
-export default function ModuleTwo({ data, children }: IModuleTwoProps) {
+export default function ModuleTwo({ data }: IModuleTwoProps) {
   const { config } = useConfig();
   const { localize } = useLocalize();
   const { navigate, pendingNavigation } = useView();
@@ -27,7 +25,7 @@ export default function ModuleTwo({ data, children }: IModuleTwoProps) {
       >
         Change view{pendingNavigation ? " Loading" : null}
       </button>
-      <Outlet>{children}</Outlet>
+      <Children />
     </div>
   );
 }

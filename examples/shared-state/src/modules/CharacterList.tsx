@@ -18,7 +18,15 @@ const GET_CHARACTERS = gql`
   }
 `
 
-export const useInit: IOnInitHook = () => {
+interface EpisodeCharacters {
+  characters: {
+    id: string
+    image: string
+    name: string
+  }[]
+}
+
+export const useInit: IOnInitHook<EpisodeCharacters> = () => {
   const {
     state: { episode: episodeId },
   } = useAppState()
@@ -36,10 +44,13 @@ export const useInit: IOnInitHook = () => {
   return { loading, error, data: episode }
 }
 
+interface CharacterListProps {
+  data: EpisodeCharacters
+}
+
 // This "module" is responsible for showing the characters that
 // appear in a specific episode the user has chosen.
-// @ts-ignore
-export default function CharacterList({ data: episode }) {
+export default function CharacterList({ data: episode }: CharacterListProps) {
   const {
     state: { episode: episodeId },
   } = useAppState()
@@ -52,7 +63,6 @@ export default function CharacterList({ data: episode }) {
       <section className="characters">
         <h2>Characters:</h2>
         <div>
-          {/* @ts-ignore */}
           {episode.characters.map(character => (
             <article key={character.id}>
               <img

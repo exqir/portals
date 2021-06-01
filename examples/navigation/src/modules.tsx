@@ -2,14 +2,14 @@ import type { IModuleDefinition } from "@portals/core";
 
 import { createModule } from "@portals/core";
 
+const View = () => import("@portals/provider").then(({ View }) => ({
+  default: View
+}))
+
 export const modules = new Map<string, IModuleDefinition>([
   createModule({
     moduleTag: 'view-module',
-    component: () =>
-      // @ts-ignore
-      import("@portals/provider").then(({ View }) => ({
-        default: View
-      }))
+    component: View
   }),
   createModule({
     moduleTag: 'navigation-bar',
@@ -17,13 +17,11 @@ export const modules = new Map<string, IModuleDefinition>([
   }),
   createModule({
     moduleTag: 'data-fetching',
-    // @ts-ignore
     component: () => import("./modules/DataFetching"),
     useInit: () => import("./modules/DataFetching").then(({ useInit }) => useInit)
   }),
   createModule({
     moduleTag: 'static-content',
-    // @ts-ignore
     component: () => import("./modules/Static"),
   })
 ]);

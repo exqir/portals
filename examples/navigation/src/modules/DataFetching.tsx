@@ -17,20 +17,20 @@ export default function DataFetching({ data }: IDataFetchingrops) {
   );
 }
 
-export const useInit: IOnInitHook<Record<string, unknown> | null> = function useDataFetching() {
-  const [state, setState] = useState<Record<string, unknown> | null>(null);
+export const useInit: IOnInitHook<string> = function useDataFetching() {
+  const [state, setState] = useState<string>('');
 
   // Simulate API loading
   useEffect(() => {
     console.log("ModuleOne mounted");
     setTimeout(() => {
-      setState({});
+      setState('data loaded');
     }, 1000);
   }, []);
 
   return {
     data: state,
     error: undefined,
-    loading: state === null
+    loading: !state
   };
 };
