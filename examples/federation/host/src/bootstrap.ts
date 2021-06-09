@@ -1,4 +1,10 @@
-const useCaseMap = new Map([
+interface UseCase {
+  url: string
+  scope: string
+  module: string
+}
+
+const useCaseMap = new Map<'one', UseCase>([
   [
     'one',
     {
@@ -9,12 +15,14 @@ const useCaseMap = new Map([
   ],
 ])
 
-async function loadComponent(scope, module) {
-  // Initializes the share scope. This fills it with known provided modules from this build and all remotes
+async function loadComponent(scope: string, module: string) {
+  // @ts-expect-error
   await __webpack_init_sharing__('default')
+  // @ts-expect-error
   const container = window[scope] // or get the container somewhere else
-  // Initialize the container, it may provide shared modules
+  // @ts-expect-error
   await container.init(__webpack_share_scopes__.default)
+  // @ts-expect-error
   const factory = await window[scope].get(module)
   const Module = factory()
   return Module
@@ -44,16 +52,22 @@ function loadUseCase(url: string) {
   return promise
 }
 
-export default function bootstrap({ useCase, ...args } = {}) {
-  const { url, scope, module } = useCaseMap.get(useCase)
+interface Bootstrap {
+  useCase: 'one'
+  [key: string]: any
+}
+
+export default function bootstrap({ useCase, ...args }: Bootstrap) {
+  const options = useCaseMap.get(useCase)
+
+  if (typeof options === 'undefined')
+    throw new Error(`UseCase ${useCase} is not supported.`)
+
+  const { url, scope, module } = options
 
   loadUseCase(url)
     .then(() => loadComponent(scope, module))
     .then(({ bootstrap: boot }) => boot(args))
-
-  // await loadUseCase(url)
-  // const { bootstrap: boot } = await loadComponent(useCase, './entry')
-  // boot(args)
 }
 
 // Calling the bootstrap function here instead of the HTML file
