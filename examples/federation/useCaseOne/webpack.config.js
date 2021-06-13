@@ -1,3 +1,4 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ModuleFederationPlugin = require('webpack').container
   .ModuleFederationPlugin
 const path = require('path')
@@ -5,10 +6,10 @@ const path = require('path')
 const dependencies = require('./package.json').dependencies
 
 module.exports = {
-  entry: './src/entry',
+  entry: './src/index',
   mode: 'development',
   devServer: {
-    contentBase: [path.join(__dirname, 'public'), path.join(__dirname, 'dist')],
+    contentBase: [path.join(__dirname, 'dist')],
     port: 3002,
   },
   output: {
@@ -16,6 +17,10 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
       {
         test: /\.m?js$/,
         type: 'javascript/auto',
@@ -55,6 +60,9 @@ module.exports = {
         react: { singleton: true },
         'react-dom': { singleton: true },
       },
+    }),
+    new HtmlWebpackPlugin({
+      template: './public/index.html',
     }),
   ],
 }

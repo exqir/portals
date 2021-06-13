@@ -15,5 +15,5 @@
     "noEmit": true,
     "jsx": "react"
   },
-  "include": ["host/src"]
+  "include": ["host/src", "useCaseOne/src"]
 }
