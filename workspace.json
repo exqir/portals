@@ -1,0 +1,138 @@
+{
+  "version": 2,
+  "projects": {
+    "core": {
+      "prefix": "portals",
+      "root": "packages/core",
+      "sourceRoot": "packages/core/src",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/web:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/packages/core",
+            "tsConfig": "packages/core/tsconfig.lib.json",
+            "project": "packages/core/package.json",
+            "entryFile": "packages/core/src/index.ts",
+            "external": ["react/jsx-runtime"],
+            "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
+            "assets": [
+              {
+                "glob": "packages/core/README.md",
+                "input": ".",
+                "output": "."
+              }
+            ]
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["packages/core/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/packages/core"],
+          "options": {
+            "jestConfig": "packages/core/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "example-basic": {
+      "prefix": "portals",
+      "root": "examples/basic",
+      "type": "app"
+    },
+    "example-exchangeable-ui": {
+      "prefix": "portals",
+      "root": "examples/exchangeable-ui",
+      "type": "app"
+    },
+    "example-federation": {
+      "prefix": "portals",
+      "root": "examples/federation",
+      "type": "app"
+    },
+    "example-federation-host": {
+      "prefix": "portals",
+      "root": "examples/federation/host",
+      "type": "app"
+    },
+    "example-federation-use-case-one": {
+      "prefix": "portals",
+      "root": "examples/federation/useCaseOne",
+      "type": "app"
+    },
+    "example-navigation": {
+      "prefix": "portals",
+      "root": "examples/navigation",
+      "type": "app"
+    },
+    "example-nested-modules": {
+      "prefix": "portals",
+      "root": "examples/nested-modules",
+      "type": "app"
+    },
+    "example-shared-state": {
+      "prefix": "portals",
+      "root": "examples/shared-state",
+      "type": "app"
+    },
+    "provider": {
+      "prefix": "portals",
+      "root": "packages/provider",
+      "sourceRoot": "packages/provider/src",
+      "type": "library",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/web:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/packages/provider",
+            "tsConfig": "packages/provider/tsconfig.lib.json",
+            "project": "packages/provider/package.json",
+            "entryFile": "packages/provider/src/index.ts",
+            "external": ["react/jsx-runtime"],
+            "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
+            "assets": [
+              {
+                "glob": "packages/provider/README.md",
+                "input": ".",
+                "output": "."
+              }
+            ]
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["packages/provider/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/packages/provider"],
+          "options": {
+            "jestConfig": "packages/provider/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
+  },
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "babel": true
+      }
+    }
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/react"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "npmScope": "portals",
+  "implicitDependencies": {
+    "workspace.json": "*",
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
+    "nx.json": "*"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint", "package", "prepare"]
+      }
+    }
+  },
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ],
+    "prepare": [
+      {
+        "target": "prepare",
+        "projects": "dependencies"
+      }
+    ],
+    "package": [
+      {
+        "target": "package",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "projects": {
+    "core": {
+      "implicitDependencies": []
+    },
+    "example-basic": {
+      "implicitDependencies": []
+    },
+    "example-exchangeable-ui": {
+      "implicitDependencies": []
+    },
+    "example-federation": {
+      "implicitDependencies": []
+    },
+    "example-federation-host": {
+      "implicitDependencies": []
+    },
+    "example-federation-use-case-one": {
+      "implicitDependencies": []
+    },
+    "example-navigation": {
+      "implicitDependencies": []
+    },
+    "example-nested-modules": {
+      "implicitDependencies": []
+    },
+    "example-shared-state": {
+      "implicitDependencies": []
+    },
+    "provider": {
+      "implicitDependencies": []
+    }
+  },
+  "affected": {
+    "defaultBase": "main"
+  },
+  "workspaceLayout": {
+    "libsDir": "packages",
+    "appsDir": "examples"
+  }
+}
