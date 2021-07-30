@@ -10,13 +10,13 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('[createCustomElements]', () => {
+describe('[internal/createCustomElements]', () => {
   test('should define a customeElement for each module', () => {
     const modules = ['custom-module-1-1', 'custom-module-1-2']
 
     createCustomElements(modules)
 
-    modules.forEach(module =>
+    modules.forEach((module) =>
       expect(customElements.get(module)).not.toBeUndefined(),
     )
   })
