@@ -86,7 +86,21 @@ describe('[internal/ModuleHostElement]', () => {
     expect(hostElement.getStatus()).toBe(MODULE_STATUS.REGISTERED)
   })
 
-  test('should update the module status as attribute on the element with `setStatus`', () => {
+  test('should add the content of a template child as children of the element', () => {
+    render(
+      `<module-element>
+        <template><div data-test-id="template-child"></div></template>
+      </module-element>`,
+    )
+
+    const element = document.querySelector(
+      `module-element > [data-test-id='template-child']`,
+    )
+
+    expect(element).toBeInstanceOf(HTMLDivElement)
+  })
+
+  test('[setStatus] should update the module status as attribute on the element', () => {
     render('<module-element></module-element>')
     const hostElement = elements.values().next().value as ModuleHostElement
 
@@ -123,17 +137,24 @@ describe('[internal/ModuleHostElement]', () => {
     expect(hostElement.getStatus()).toBe(MODULE_STATUS.HIDDEN)
   })
 
-  test('should add the content of a template child as children of the element', () => {
+  test('[initialiseTree] should create a registry representing the tree structure of elements in the DOM', () => {
     render(
       `<module-element>
-        <template><div data-test-id="template-child"></div></template>
+        <module-element></module-element>
+        <module-element>
+          <module-element></module-element>
+        </module-element>
       </module-element>`,
     )
+    const registry = createRegistry()
 
-    const element = document.querySelector(
-      `module-element > [data-test-id='template-child']`,
-    )
+    elements.forEach((e) => e.initialiseTree(registry))
 
-    expect(element).toBeInstanceOf(HTMLDivElement)
+    const level1 = registry
+    const level2 = level1.getRegistry(level1.getElements()[0])
+    const level3 = level2?.getRegistry(level2!.getElements()[1])
+    expect(level1.getElements()).toHaveLength(1)
+    expect(level2?.getElements()).toHaveLength(2)
+    expect(level3?.getElements()).toHaveLength(1)
   })
 })
