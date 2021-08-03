@@ -28,7 +28,7 @@ const render = (
   const registry = createRegistry()
   registry.register(host, createRegistry())
 
-  const _screen = tlrRender(
+  const queries = tlrRender(
     <BootstrapOptionsProvider
       options={{
         baseUrl: './',
@@ -45,7 +45,7 @@ const render = (
     </BootstrapOptionsProvider>,
   )
 
-  return { host, ..._screen }
+  return { host, ...queries }
 }
 
 describe('[internal/ModuleManager]', () => {
@@ -98,6 +98,15 @@ describe('[internal/ModuleManager]', () => {
     render(<ModuleManager module={Module} useInit={useInit} />)
 
     screen.getByText('Module')
+  })
+
+  test('should set status of the host to `RENDERED` when useInit retuns neither loading nor error`', () => {
+    const Module = () => <>Module</>
+    const useInit = () => ({ data: null, loading: false, error: undefined })
+
+    const { host } = render(<ModuleManager module={Module} useInit={useInit} />)
+
+    expect(host.getStatus()).toBe(MODULE_STATUS.RENDERED)
   })
 
   test('should pass data returned by useInit to module as data prop', () => {
