@@ -3,24 +3,32 @@ import type { ComponentType } from 'react'
 import {
   createLoadableComponent,
   ILoadableWithData,
-  ILoadableWithoutData
+  ILoadableWithoutData,
 } from './internal/createLoadableComponent'
 
-interface ICreateModuleWithData<Payload> extends ILoadableWithData<Payload> {
+interface ICreateModuleWithData<Props, Payload>
+  extends ILoadableWithData<Props, Payload> {
   moduleTag: string
 }
-interface ICreateModuleWithoutData extends ILoadableWithoutData {
+interface ICreateModuleWithoutData<Props> extends ILoadableWithoutData<Props> {
   moduleTag: string
 }
 
-export function createModule<Payload>(args: ICreateModuleWithData<Payload>): [string, ComponentType<{ data: Payload }>]
-export function createModule(args: ICreateModuleWithoutData): [string, ComponentType<{}>]
-export function createModule<Payload>({
+export function createModule<Props, Payload>(
+  args: ICreateModuleWithData<Props, Payload>,
+): [string, ComponentType<Omit<Props, 'data'>>]
+export function createModule<Props>(
+  args: ICreateModuleWithoutData<Props>,
+): [string, ComponentType<Props>]
+export function createModule<Props, Payload>({
   moduleTag,
   component,
   useInit,
 }: any): typeof useInit extends undefined
-  ? [string, ComponentType<{}>]
-  : [string, ComponentType<{ data: Payload }>] {
-  return [moduleTag, createLoadableComponent({ component, useInit })]
+  ? [string, ComponentType<Props>]
+  : [string, ComponentType<Omit<Props, 'data'>>] {
+  return [
+    moduleTag,
+    createLoadableComponent<Props, Payload>({ component, useInit }),
+  ]
 }
