@@ -37,11 +37,9 @@ const render = (
         ...options,
       }}
     >
-      <HostProvider host={host}>
-        <LoadingStatusProvider registry={registry}>
-          {element}
-        </LoadingStatusProvider>
-      </HostProvider>
+      <LoadingStatusProvider registry={registry}>
+        <HostProvider host={host}>{element}</HostProvider>
+      </LoadingStatusProvider>
     </BootstrapOptionsProvider>,
   )
 
