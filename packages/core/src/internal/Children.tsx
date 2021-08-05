@@ -50,6 +50,9 @@ export const Children: (props: IChildrenProps) => JSX.Element =
   ChildrenImplementation
 
 function useCondition(condition?: Condition, name?: string) {
+  // TODO: Is hosy really needed here?
+  // It is only used for useModuleStatus but the calls to
+  // setHidden set the host explizitly for each call.
   const { host } = useHost()
   const { children } = useChildren(name)
   const { setHidden } = useModuleStatus(host)
