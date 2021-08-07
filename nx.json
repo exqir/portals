@@ -37,7 +37,7 @@
     ]
   },
   "projects": {
-    "core": {
+    "react": {
       "implicitDependencies": []
     },
     "example-basic": {
