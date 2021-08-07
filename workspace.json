@@ -1,25 +1,25 @@
 {
   "version": 2,
   "projects": {
-    "core": {
+    "react": {
       "prefix": "portals",
-      "root": "packages/core",
-      "sourceRoot": "packages/core/src",
+      "root": "packages/react",
+      "sourceRoot": "packages/react/src",
       "projectType": "library",
       "targets": {
         "build": {
           "executor": "@nrwl/web:package",
           "outputs": ["{options.outputPath}"],
           "options": {
-            "outputPath": "dist/packages/core",
-            "tsConfig": "packages/core/tsconfig.lib.json",
-            "project": "packages/core/package.json",
-            "entryFile": "packages/core/src/index.ts",
+            "outputPath": "dist/packages/react",
+            "tsConfig": "packages/react/tsconfig.lib.json",
+            "project": "packages/react/package.json",
+            "entryFile": "packages/react/src/index.ts",
             "external": ["react/jsx-runtime"],
             "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
             "assets": [
               {
-                "glob": "packages/core/README.md",
+                "glob": "packages/react/README.md",
                 "input": ".",
                 "output": "."
               }
@@ -29,14 +29,14 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["packages/core/**/*.{ts,tsx,js,jsx}"]
+            "lintFilePatterns": ["packages/react/**/*.{ts,tsx,js,jsx}"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/packages/core"],
+          "outputs": ["coverage/packages/react"],
           "options": {
-            "jestConfig": "packages/core/jest.config.js",
+            "jestConfig": "packages/react/jest.config.js",
             "passWithNoTests": true
           }
         }

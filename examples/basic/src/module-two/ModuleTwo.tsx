@@ -1,7 +1,7 @@
-import type { IOnInitHook } from "@portals/core";
+import type { IOnInitHook } from "@portals/react";
 import React, { useState } from "react";
 
-import { Children } from "@portals/core";
+import { Children } from "@portals/react";
 import { useConfig, useView, useLocalize } from "@portals/provider";
 
 interface IModuleTwoProps {

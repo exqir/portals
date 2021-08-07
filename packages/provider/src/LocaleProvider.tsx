@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction, ReactNode } from "react";
 import React, { useState } from "react";
-import { createContext } from "@portals/core";
+import { createContext } from "@portals/react";
 
 function initLocale() {
   return navigator.language;

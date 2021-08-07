@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@portals/core": ["packages/core/src/index.ts"],
+      "@portals/react": ["packages/react/src/index.ts"],
       "@portals/provider": ["packages/provider/src/index.ts"]
     }
   },

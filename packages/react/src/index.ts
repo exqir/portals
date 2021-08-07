@@ -7,7 +7,7 @@ export type {
 } from './types/definitions'
 
 // TODO: This should rather be available as @protals/core/provider instead
-// of directly from @portals/core.
+// of directly from @portals/react.
 export {
   LoadingStatusProvider,
   LOADING_STATUS,

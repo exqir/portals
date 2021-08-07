@@ -1,5 +1,5 @@
-import type { IProvider } from "@portals/core";
-import { combineProvider } from "@portals/core";
+import type { IProvider } from "@portals/react";
+import { combineProvider } from "@portals/react";
 
 import { LocaleProvider, useLocale } from "./LocaleProvider";
 import { MessagesProvider, useMessages } from "./MessagesProvider";

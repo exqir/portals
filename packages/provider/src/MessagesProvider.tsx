@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import React, { useEffect, useState } from 'react'
-import { useBootstrapOptions, createContext } from '@portals/core'
+import { useBootstrapOptions, createContext } from '@portals/react'
 
 import { useLocale } from './LocaleProvider'
 

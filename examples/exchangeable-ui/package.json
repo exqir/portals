@@ -7,7 +7,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@portals/core": "*",
+    "@portals/react": "*",
     "@portals/provider": "*",
     "@stitches/react": "^0.1.9",
     "react": "^17.0.0",

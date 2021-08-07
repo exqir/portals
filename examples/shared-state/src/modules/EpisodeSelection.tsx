@@ -1,4 +1,4 @@
-import type { IOnInitHook } from '@portals/core'
+import type { IOnInitHook } from '@portals/react'
 import React from 'react'
 import { useQuery, gql } from '@apollo/client'
 
@@ -37,7 +37,7 @@ export const useInit: IOnInitHook<Episode[]> = () => {
 }
 
 interface EpisodeSelectionProps {
-  data: Episode[] 
+  data: Episode[]
 }
 
 export default function EpisodeSelection({ data: episodes }: EpisodeSelectionProps) {

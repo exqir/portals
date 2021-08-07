@@ -1,4 +1,4 @@
-# @portals/core
+# @portals/react
 
 This library was generated with [Nx](https://nx.dev).
 

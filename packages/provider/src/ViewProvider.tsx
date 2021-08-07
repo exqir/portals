@@ -19,7 +19,7 @@ import {
   MODULE_STATUS,
   Children,
   Host,
-} from '@portals/core'
+} from '@portals/react'
 
 // Should we move core utils to its own package so that they can be shared?
 function noop() {}

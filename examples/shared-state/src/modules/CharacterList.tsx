@@ -1,4 +1,4 @@
-import type { IOnInitHook } from '@portals/core'
+import type { IOnInitHook } from '@portals/react'
 import React from 'react'
 import { useQuery, gql } from '@apollo/client'
 

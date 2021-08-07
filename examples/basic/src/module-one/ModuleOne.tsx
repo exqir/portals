@@ -1,4 +1,4 @@
-import type { IOnInitHook } from "@portals/core";
+import type { IOnInitHook } from "@portals/react";
 import React, { useState, useEffect } from "react";
 
 import { useLocale, useLocalize } from "@portals/provider";

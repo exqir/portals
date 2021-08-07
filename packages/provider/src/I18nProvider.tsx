@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useMemo, useCallback } from "react";
-import { useHost, createContext } from "@portals/core";
+import { useHost, createContext } from "@portals/react";
 
 import { useMessages } from "./MessagesProvider";
 
