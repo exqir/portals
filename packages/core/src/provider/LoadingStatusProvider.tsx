@@ -11,6 +11,7 @@ import { createContext } from '../createProvider'
 import { isUndefined } from '../internal/utils'
 
 export enum LOADING_STATUS {
+  // TODO: Is init necessary or can the status start with loading?
   INIT = 'INIT',
   IDLE = 'IDLE',
   LOADING = 'LOADING',
@@ -169,7 +170,8 @@ function updateAffectedParents(modules: IModules, node: INode): IModules {
 }
 
 function loadingReducer(state: ILoadingState, action: ILoadingAction) {
-  console.log(state, action)
+  // TODO: Use a logger that can be enabled via env or options
+  // console.log(state, action)
   switch (action.type) {
     case ACTIONS.MODULE_ERRORED:
     case ACTIONS.MODULE_LOADING:
@@ -243,7 +245,7 @@ export function useLoadingStatus(element?: ModuleHostElement): { loadingStatus: 
     throw new Error(`Failed to find loading status: Element with id ${id} does not exist in loading state.`)
   }
 
-  return { loadingStatus: node.treeStatus}
+  return { loadingStatus: node.treeStatus }
 }
 
 export function useModuleStatus(_element: ModuleHostElement) {
