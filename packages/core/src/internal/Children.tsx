@@ -36,7 +36,7 @@ function ChildrenImplementation({
 }: IChildrenImplementationProps) {
   const { children } = useChildren(name)
   const c = isFunction(map) ? ReactChildren.map(children, map) : children
-  const shouldRender = useCondition(condition)
+  const shouldRender = useCondition(condition, name)
 
   return (
     <Fragment>
@@ -46,13 +46,15 @@ function ChildrenImplementation({
 }
 
 export const Slot: (props: ISlotProps) => JSX.Element = ChildrenImplementation
-export const Children: (
-  props: IChildrenProps,
-) => JSX.Element = ChildrenImplementation
+export const Children: (props: IChildrenProps) => JSX.Element =
+  ChildrenImplementation
 
-function useCondition(condition?: Condition) {
+function useCondition(condition?: Condition, name?: string) {
+  // TODO: Is hosy really needed here?
+  // It is only used for useModuleStatus but the calls to
+  // setHidden set the host explizitly for each call.
   const { host } = useHost()
-  const { children } = useChildren()
+  const { children } = useChildren(name)
   const { setHidden } = useModuleStatus(host)
 
   const shouldRender = isUndefined(condition)
@@ -63,7 +65,7 @@ function useCondition(condition?: Condition) {
 
   useEffect(() => {
     if (!shouldRender) {
-      ReactChildren.forEach(children, child => {
+      ReactChildren.forEach(children, (child) => {
         if (isValidElement(child) && isModuleHostElement(child.props.host)) {
           setHidden(child.props.host)
         }
@@ -100,7 +102,7 @@ export function ChildrenProvider({
     const c: { content: ReactNode[]; [slot: string]: ReactNode } = {
       content: [],
     }
-    ReactChildren.forEach(content, child => {
+    ReactChildren.forEach(content, (child) => {
       if (isValidElement(child) && isModuleHostElement(child.props.host)) {
         const host = child.props.host
         const slotName = getAttribute(host, 'slot')
