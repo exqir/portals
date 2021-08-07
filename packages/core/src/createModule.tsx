@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, LazyExoticComponent } from 'react'
 
 import {
   createLoadableComponent,
@@ -25,8 +25,8 @@ export function createModule<Props, Payload>({
   component,
   useInit,
 }: any): typeof useInit extends undefined
-  ? [string, ComponentType<Props>]
-  : [string, ComponentType<Omit<Props, 'data'>>] {
+  ? [string, LazyExoticComponent<ComponentType<Props>>]
+  : [string, LazyExoticComponent<ComponentType<Omit<Props, 'data'>>>] {
   return [
     moduleTag,
     createLoadableComponent<Props, Payload>({ component, useInit }),
