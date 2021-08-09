@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/exqir/portals.git",
-    "directory": "packages/core"
+    "directory": "packages/react"
   },
   "author": "Malte Sellmer",
   "license": "MIT",

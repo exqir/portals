@@ -1,26 +1,9 @@
-import { createRegistry } from '../../src/internal/registry'
-import {
-  ModuleHostElement,
-  MODULE_STATUS,
-} from '../../src/internal/ModuleHostElement'
+import { createCustomElements } from '../src/createCustomElements'
 
-let elements: Set<ModuleHostElement>
+import { ModuleHostElement, MODULE_STATUS } from '../src/ModuleHostElement'
 
 beforeAll(() => {
-  elements = new Set()
-
-  customElements.define(
-    'module-element',
-    class ModuleElement extends ModuleHostElement {
-      constructor() {
-        super(elements)
-      }
-    },
-  )
-})
-
-beforeEach(() => {
-  elements.clear()
+  createCustomElements(['module-element'])
 })
 
 afterEach(() => {
@@ -31,34 +14,23 @@ function render(dom: string) {
   document.body.innerHTML = dom
 }
 
-describe('[internal/ModuleHostElement]', () => {
-  test('should register element when added to the DOM', () => {
-    expect(elements.size).toBe(0)
+function getElement(): ModuleHostElement {
+  return document
+    .getElementsByTagName('module-element')
+    .item(0) as ModuleHostElement
+}
 
-    render('<module-element></module-element>')
-
-    expect(elements.size).toBe(1)
-    elements.forEach((e) => expect(e).toBeInstanceOf(ModuleHostElement))
-  })
-
-  test('should unregister element when removed from the DOM', () => {
-    render('<module-element></module-element>')
-    expect(elements.size).toBe(1)
-
-    render('')
-    expect(elements.size).toBe(0)
-  })
-
+describe('[ModuleHostElement]', () => {
   test('should have a moduleId as property on the class', () => {
     render('<module-element></module-element>')
-    const hostElement = elements.values().next().value as ModuleHostElement
+    const hostElement = getElement()
 
     expect(hostElement.moduleId).toMatch(/module-element-[a-z0-9]{9}/)
   })
 
   test('should set the moduleId as attribute on the element', () => {
     render('<module-element></module-element>')
-    const hostElement = elements.values().next().value as ModuleHostElement
+    const hostElement = getElement()
 
     const element = document.querySelector(
       `[data-module-id=${hostElement.moduleId}]`,
@@ -69,14 +41,14 @@ describe('[internal/ModuleHostElement]', () => {
 
   test('should set the display style of the element to `block`', () => {
     render('<module-element></module-element>')
-    const hostElement = elements.values().next().value as ModuleHostElement
+    const hostElement = getElement()
 
     expect(hostElement.style.display).toBe('block')
   })
 
   test('should set the module status as attribute on the element to `registered`', () => {
     render('<module-element></module-element>')
-    const hostElement = elements.values().next().value as ModuleHostElement
+    const hostElement = getElement()
 
     const element = document.querySelector(
       `[data-module-status='${MODULE_STATUS.REGISTERED}']`,
@@ -102,7 +74,7 @@ describe('[internal/ModuleHostElement]', () => {
 
   test('[setStatus] should update the module status as attribute on the element', () => {
     render('<module-element></module-element>')
-    const hostElement = elements.values().next().value as ModuleHostElement
+    const hostElement = getElement()
 
     hostElement.setStatus(MODULE_STATUS.LOADING)
 
@@ -135,26 +107,5 @@ describe('[internal/ModuleHostElement]', () => {
     )
     expect(element4).toBe(hostElement)
     expect(hostElement.getStatus()).toBe(MODULE_STATUS.HIDDEN)
-  })
-
-  test('[initialiseTree] should create a registry representing the tree structure of elements in the DOM', () => {
-    render(
-      `<module-element>
-        <module-element></module-element>
-        <module-element>
-          <module-element></module-element>
-        </module-element>
-      </module-element>`,
-    )
-    const registry = createRegistry()
-
-    elements.forEach((e) => e.initialiseTree(registry))
-
-    const level1 = registry
-    const level2 = level1.getRegistry(level1.getElements()[0])
-    const level3 = level2?.getRegistry(level2!.getElements()[1])
-    expect(level1.getElements()).toHaveLength(1)
-    expect(level2?.getElements()).toHaveLength(2)
-    expect(level3?.getElements()).toHaveLength(1)
   })
 })

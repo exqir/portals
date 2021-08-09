@@ -10,14 +10,27 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@portals/react": ["packages/react/src/index.ts"],
-      "@portals/provider": ["packages/provider/src/index.ts"]
+      "@portals/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@portals/provider": [
+        "packages/provider/src/index.ts"
+      ],
+      "@portals/react": [
+        "packages/react/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

@@ -1,7 +1,4 @@
-import type { IRegistry } from '../types/definitions'
-
 import { isModuleHostElement, isUndefined } from './utils'
-import { createRegistry } from './registry'
 
 export enum MODULE_STATUS {
   REGISTERED = 'registered',
@@ -11,19 +8,14 @@ export enum MODULE_STATUS {
   HIDDEN = 'hidden',
 }
 
-const ID_ATTRIBUTE = 'data-module-id'
-const STATUS_ATTRIBUTE = 'data-module-status'
+export const ID_ATTRIBUTE = 'data-module-id'
+export const STATUS_ATTRIBUTE = 'data-module-status'
 
 export class ModuleHostElement extends HTMLElement {
   public moduleId: string
-  private _registry: Set<ModuleHostElement>
-  private _children: IRegistry
 
-  constructor(registry: Set<ModuleHostElement>) {
+  constructor() {
     super()
-
-    this._registry = registry
-    this._children = createRegistry()
 
     this.moduleId = [
       this.tagName.toLowerCase(),
@@ -38,36 +30,31 @@ export class ModuleHostElement extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this._registry.add(this)
-    this.setStatus(MODULE_STATUS.REGISTERED);
+    this.setStatus(MODULE_STATUS.REGISTERED)
   }
 
-  disconnectedCallback(): void {
-    this._registry.delete(this)
-  }
-
-  registerChild(element: ModuleHostElement): void {
-    this._children.register(element, element._children)
-  }
+  disconnectedCallback(): void {}
 
   setStatus(status: MODULE_STATUS) {
     this.setAttribute(STATUS_ATTRIBUTE, status)
   }
 
   getStatus(): MODULE_STATUS {
-    const status = (this.getAttributeNode(STATUS_ATTRIBUTE)?.value as MODULE_STATUS | undefined)
+    const status = this.getAttributeNode(STATUS_ATTRIBUTE)?.value as
+      | MODULE_STATUS
+      | undefined
 
     if (isUndefined(status)) {
       throw new Error('Invalid module: Module has no status.')
     }
 
-    return status;
+    return status
   }
 
   hide() {
-    this.style.display = 'none';
+    this.style.display = 'none'
     this.style.visibility = 'hidden'
-    this.setStatus(MODULE_STATUS.HIDDEN);
+    this.setStatus(MODULE_STATUS.HIDDEN)
   }
 
   renderChildren() {
@@ -90,23 +77,7 @@ export class ModuleHostElement extends HTMLElement {
       this.appendChild(template.content.cloneNode(true))
     }
   }
-
-  initialiseTree(root: IRegistry) {
-    if (isNestedModule(this)) {
-      // .closest needs polyfill for IE.
-      // Use closest on parentElement to make sure not to select the
-      // Host element itself because closest can return the element
-      // it was called on when it matches the selector.
-      const parent = this.parentElement?.closest('[data-module-id]')
-      if (parent && isModuleHostElement(parent)) {
-        parent.registerChild(this)
-        return
-      }
-    }
-
-    root.register(this, this._children)
-  }
-} 
+}
 
 function isNestedModule(element: ModuleHostElement): boolean {
   return (
