@@ -1,5 +1,6 @@
+import type { ModuleHostElement } from '@portals/core'
+
 import type { IRegistry, IRegistryTree } from '../types/definitions'
-import type { ModuleHostElement } from './ModuleHostElement'
 
 export function createRegistry(): IRegistry {
   const registry: IRegistryTree = new Map()
@@ -17,6 +18,6 @@ export function createRegistry(): IRegistry {
     unregister(element: ModuleHostElement) {
       registry.delete(element)
     },
-    __r: registry
+    __r: registry,
   }
 }

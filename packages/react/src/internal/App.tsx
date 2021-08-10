@@ -1,5 +1,6 @@
-import { ComponentType, ReactElement, ReactNode, Suspense } from 'react'
-import React from 'react'
+import type { IModulesRoot } from '@portals/core'
+import type { ComponentType, ReactElement, ReactNode } from 'react'
+import React, { Suspense } from 'react'
 
 import type {
   IModulesMap,
@@ -18,7 +19,7 @@ import { Host } from './Host'
 import { NoopProvider } from './utils'
 
 interface IAppProps {
-  registry: IRegistry
+  modulesTree: IModulesRoot
   modules: IModulesMap
   AppProvider?: IProvider
   ModuleProvider?: IProvider
@@ -26,7 +27,7 @@ interface IAppProps {
 }
 
 export function App({
-  registry,
+  modulesTree,
   modules,
   AppProvider = NoopProvider,
   ModuleProvider = NoopProvider,
@@ -34,42 +35,54 @@ export function App({
 }: IAppProps) {
   return (
     <BootstrapOptionsProvider options={options}>
-      <RegistryProvider registry={registry}>
-        <LoadingStatusProvider registry={registry}>
-          <Suspense fallback={null}>
-            <AppProvider children={buildModulesTree(registry, ModuleProvider, Module, modules, true)} />
-          </Suspense>
-        </LoadingStatusProvider>
-      </RegistryProvider>
+      <LoadingStatusProvider modulesTree={modulesTree}>
+        <Suspense fallback={null}>
+          <AppProvider
+            children={buildModulesTree(
+              modulesTree.children,
+              ModuleProvider,
+              Module,
+              modules,
+              true,
+            )}
+          />
+        </Suspense>
+      </LoadingStatusProvider>
     </BootstrapOptionsProvider>
   )
 }
 
 function buildModulesTree(
-  registry: IRegistry,
+  moduleChildren: IModulesRoot['children'],
   ModuleProvider: IProvider,
   Module: ComponentType<IModuleProps>,
   modules: IModulesMap,
-  renderToHost = false
+  renderToHost = false,
 ): ReactElement[] | undefined {
-  return registry.getElements().map(element => {
-    const elementRegistry = registry.getRegistry(element) as IRegistry
+  return moduleChildren.map(({ element, children }) => {
     return (
       <HostProvider host={element} key={element.moduleId}>
-        <RegistryProvider registry={elementRegistry}>
-          <ModuleProvider>
-            <Module renderToHost={renderToHost} modules={modules} children={buildModulesTree(elementRegistry, ModuleProvider, Module, modules)} />
-          </ModuleProvider>
-        </RegistryProvider>
+        <ModuleProvider>
+          <Module
+            renderToHost={renderToHost}
+            modules={modules}
+            children={buildModulesTree(
+              children,
+              ModuleProvider,
+              Module,
+              modules,
+            )}
+          />
+        </ModuleProvider>
       </HostProvider>
     )
   })
 }
 
 interface IModuleProps {
-  renderToHost: boolean,
-  modules: IModulesMap,
-  children: ReactNode,
+  renderToHost: boolean
+  modules: IModulesMap
+  children: ReactNode
 }
 
 function Module({ renderToHost, modules, children }: IModuleProps) {
@@ -84,7 +97,7 @@ function Module({ renderToHost, modules, children }: IModuleProps) {
       <ChildrenProvider content={children}>
         <ModuleComponent />
       </ChildrenProvider>
-    );
+    )
 
     return renderToHost ? <Host>{M}</Host> : M
   }

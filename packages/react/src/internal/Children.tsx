@@ -8,10 +8,10 @@ import React, {
   isValidElement,
   useMemo,
 } from 'react'
+import { isUndefined, isFunction, isModuleHostElement } from '@portals/core'
 
 import { useHost } from '../provider/HostProvider'
 import { useModuleStatus } from '../provider/LoadingStatusProvider'
-import { isUndefined, isModuleHostElement, isFunction } from './utils'
 
 type Condition = boolean | (() => boolean)
 

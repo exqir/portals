@@ -1,6 +1,6 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react'
+import type { ModuleHostElement } from '@portals/core'
 
-import type { ModuleHostElement } from '../internal/ModuleHostElement'
 import type { IPreload } from '../internal/createPreload'
 
 export type ILazy<T> = () => Promise<T>

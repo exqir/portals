@@ -1,11 +1,8 @@
 import type { ReactElement, ReactNode } from 'react'
 import { screen, render as tlrRender, fireEvent } from '@testing-library/react'
+import { ModuleHostElement, MODULE_STATUS } from '@portals/core'
 
 import { createRegistry } from '../../src/internal/registry'
-import {
-  ModuleHostElement,
-  MODULE_STATUS,
-} from '../../src/internal/ModuleHostElement'
 import { HostProvider, useHost } from '../../src/provider/HostProvider'
 
 import {

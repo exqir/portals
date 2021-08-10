@@ -1,14 +1,10 @@
 import type { ReactNode, Dispatch } from 'react'
-import React, {
-  useReducer,
-  useCallback,
-} from 'react'
+import type { ModuleHostElement, IModulesRoot } from '@portals/core'
+import React, { useReducer, useCallback } from 'react'
+import { MODULE_STATUS, isUndefined } from '@portals/core'
 
 import type { IRegistry } from '../types/definitions'
-import type { ModuleHostElement } from '../internal/ModuleHostElement'
-import { MODULE_STATUS } from '../internal/ModuleHostElement'
 import { createContext } from '../createProvider'
-import { isUndefined } from '../internal/utils'
 
 export enum LOADING_STATUS {
   // TODO: Is init necessary or can the status start with loading?
@@ -43,7 +39,7 @@ interface ILoadingState {
 
 type ILoadingAction = {
   type: ACTIONS
-  payload: { module: ModuleHostElement, status: MODULE_STATUS }
+  payload: { module: ModuleHostElement; status: MODULE_STATUS }
 }
 
 function getNodeTreeStatus(modules: IModules, node: INode): MODULE_STATUS {
@@ -68,13 +64,6 @@ function getNodeTreeStatus(modules: IModules, node: INode): MODULE_STATUS {
         break
       }
       // Ignore hidden children
-      // case MODULE_STATUS.HIDDEN: {
-      //   // Loading takes presedence over hidden
-      //   if (status !== MODULE_STATUS.LOADING) {
-      //     status = MODULE_STATUS.HIDDEN
-      //   }
-      //   break;
-      // }
     }
   }
 
@@ -83,7 +72,7 @@ function getNodeTreeStatus(modules: IModules, node: INode): MODULE_STATUS {
 
 function getLoadingStatus(modules: IModules): LOADING_STATUS {
   const topLevelModules = Object.values(modules).filter(
-    node => node.parent === null,
+    (node) => node.parent === null,
   )
 
   let status = LOADING_STATUS.INIT
@@ -108,18 +97,17 @@ function getLoadingStatus(modules: IModules): LOADING_STATUS {
 }
 
 function getAllElements(
-  registry: IRegistry,
+  moduleChildren: IModulesRoot['children'],
   parent: string | null = null,
 ): IModules {
   let modules: IModules = {}
 
-  registry.getElements().forEach(element => {
+  moduleChildren.forEach(({ element, children: mChildren }) => {
     const id = element.moduleId
     let children: IModules = {}
 
-    const childrenRegistry = registry.getRegistry(element)
-    if (childrenRegistry?.getElements().length) {
-      children = getAllElements(childrenRegistry, id)
+    if (mChildren.length) {
+      children = getAllElements(mChildren, id)
       modules = { ...modules, ...children }
     }
 
@@ -127,9 +115,9 @@ function getAllElements(
       module: element,
       parent,
       children: Object.values(children)
-      // TODO: Only add direct children as children in a better way
-        .filter(c => c.parent === id)
-        .map(c => c.module.moduleId),
+        // TODO: Only add direct children as children in a better way
+        .filter((c) => c.parent === id)
+        .map((c) => c.module.moduleId),
       nodeStatus: MODULE_STATUS.REGISTERED,
       treeStatus: MODULE_STATUS.REGISTERED,
     }
@@ -140,10 +128,10 @@ function getAllElements(
   return modules
 }
 
-function initState(registry: IRegistry): ILoadingState {
+function initState(modulesTree: IModulesRoot): ILoadingState {
   return {
     status: LOADING_STATUS.INIT,
-    modules: getAllElements(registry),
+    modules: getAllElements(modulesTree.children),
   }
 }
 
@@ -211,18 +199,19 @@ interface ILoadingContext {
   dispatch: Dispatch<ILoadingAction>
 }
 
-const [LoadingContext, useLoadingContext] = createContext<ILoadingContext>('LoadingContext')
+const [LoadingContext, useLoadingContext] =
+  createContext<ILoadingContext>('LoadingContext')
 
 interface ILoadingStatusProviderProps {
-  registry: IRegistry
+  modulesTree: IModulesRoot
   children: ReactNode
 }
 
 export function LoadingStatusProvider({
-  registry,
+  modulesTree,
   children,
 }: ILoadingStatusProviderProps) {
-  const [state, dispatch] = useReducer(loadingReducer, registry, initState)
+  const [state, dispatch] = useReducer(loadingReducer, modulesTree, initState)
 
   return (
     <LoadingContext state={state} dispatch={dispatch}>
@@ -231,8 +220,10 @@ export function LoadingStatusProvider({
   )
 }
 
-export function useLoadingStatus(element?: ModuleHostElement): { loadingStatus: MODULE_STATUS | LOADING_STATUS} {
-  const { state } = useLoadingContext();
+export function useLoadingStatus(element?: ModuleHostElement): {
+  loadingStatus: MODULE_STATUS | LOADING_STATUS
+} {
+  const { state } = useLoadingContext()
 
   if (isUndefined(element)) {
     return { loadingStatus: state.status }
@@ -242,7 +233,9 @@ export function useLoadingStatus(element?: ModuleHostElement): { loadingStatus: 
   const node = state.modules[id]
 
   if (isUndefined(node)) {
-    throw new Error(`Failed to find loading status: Element with id ${id} does not exist in loading state.`)
+    throw new Error(
+      `Failed to find loading status: Element with id ${id} does not exist in loading state.`,
+    )
   }
 
   return { loadingStatus: node.treeStatus }

@@ -1,9 +1,9 @@
 import type { ComponentType, LazyExoticComponent } from 'react'
 import React, { lazy } from 'react'
+import { isFunction } from '@portals/core'
 
 import type { ILazy, IOnInitHook } from '../types/definitions'
 import { ModuleManager } from './ModuleManager'
-import { isFunction } from './utils'
 
 export interface ILoadableWithoutData<Props> {
   component: ILazy<{ default: ComponentType<Props> }>

@@ -1,10 +1,7 @@
 import type { ReactElement } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
+import { ModuleHostElement, MODULE_STATUS } from '@portals/core'
 
-import {
-  ModuleHostElement,
-  MODULE_STATUS,
-} from '../../src/internal/ModuleHostElement'
 import { createRegistry } from '../../src/internal/registry'
 import { HostProvider } from '../../src/provider/HostProvider'
 import { LoadingStatusProvider } from '../../src/provider/LoadingStatusProvider'

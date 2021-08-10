@@ -3,12 +3,12 @@ import React, {
   Suspense,
   createContext as _createContext,
   useContext as _useContext,
-  useMemo
+  useMemo,
 } from 'react'
+import { isFunction } from '@portals/core'
 
 import type { IProvider, IProviderOptions } from './types/definitions'
 import { createPreload } from './internal/createPreload'
-import { isFunction } from './internal/utils'
 
 export function createProvider<Props, Payload>({
   Component,

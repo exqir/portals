@@ -1,5 +1,7 @@
+import type { IModulesRoot } from '@portals/core'
 import React, { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
+import { isFunction, createCustomElements, getModulesTree } from '@portals/core'
 
 import type {
   IBootstrapOptions,
@@ -10,8 +12,7 @@ import type {
 } from './types/definitions'
 
 import { App } from './internal/App'
-import { createCustomElements } from './internal/createCustomElements'
-import { isFunction, NoopComponent } from './internal/utils'
+import { NoopComponent } from './internal/utils'
 
 type IModules = Map<string, IModuleDefinition>
 
@@ -29,18 +30,23 @@ export function createUseCase({
   options: useCaseOptions = {
     Loading: NoopComponent,
     Error: NoopComponent,
-  }
+  },
 }: IUseCase) {
   return {
     bootstrap: (options: IBootstrapOptions) =>
-      // Can the type cast be avoided? 
-      bootstrap(modules, { ...(useCaseOptions as IUseCaseOptions), ...options }, AppProvider, ModuleProvider),
+      // Can the type cast be avoided?
+      bootstrap(
+        modules,
+        { ...(useCaseOptions as IUseCaseOptions), ...options },
+        AppProvider,
+        ModuleProvider,
+      ),
   }
 }
 
 function render(
   modules: IModules,
-  registry: IRegistry,
+  modulesTree: IModulesRoot,
   options: IBootstrapOptions & IUseCaseOptions,
   AppProvider?: IProvider,
   ModuleProvider?: IProvider,
@@ -49,7 +55,7 @@ function render(
   ReactDOM.render(
     <StrictMode>
       <App
-        registry={registry}
+        modulesTree={modulesTree}
         modules={modules}
         AppProvider={AppProvider}
         ModuleProvider={ModuleProvider}
@@ -66,7 +72,8 @@ function bootstrap(
   AppProvider?: IProvider,
   ModuleProvider?: IProvider,
 ) {
-  const registry = createCustomElements(Array.from(modules.keys()))
+  createCustomElements(Array.from(modules.keys()))
+  const modulesTree = getModulesTree()
 
   if (AppProvider && isFunction(AppProvider.preload)) {
     AppProvider.preload(options)
@@ -75,5 +82,5 @@ function bootstrap(
     ModuleProvider.preload(options)
   }
 
-  render(modules, registry, options, AppProvider, ModuleProvider)
+  render(modules, modulesTree, options, AppProvider, ModuleProvider)
 }

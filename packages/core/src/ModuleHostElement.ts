@@ -1,4 +1,4 @@
-import { isModuleHostElement, isUndefined } from './utils'
+import { isUndefined } from './utils'
 
 export enum MODULE_STATUS {
   REGISTERED = 'registered',
@@ -77,15 +77,6 @@ export class ModuleHostElement extends HTMLElement {
       this.appendChild(template.content.cloneNode(true))
     }
   }
-}
-
-function isNestedModule(element: ModuleHostElement): boolean {
-  return (
-    element ===
-    document.querySelector(
-      `[${ID_ATTRIBUTE}] [${ID_ATTRIBUTE}=${element.moduleId}]`,
-    )
-  )
 }
 
 // Could be used for IE to determine if ModuleHostElement is in a template

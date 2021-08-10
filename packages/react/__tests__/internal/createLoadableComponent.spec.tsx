@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react'
 import { Suspense } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
+import { ModuleHostElement } from '@portals/core'
 
-import { ModuleHostElement } from '../../src/internal/ModuleHostElement'
 import { createRegistry } from '../../src/internal/registry'
 import { BootstrapOptionsProvider } from '../../src/provider/BootstrapOptionsProvider'
 import { HostProvider } from '../../src/provider/HostProvider'

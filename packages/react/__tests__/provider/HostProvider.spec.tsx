@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
-
-import { ModuleHostElement } from '../../src/internal/ModuleHostElement'
+import { ModuleHostElement } from '@portals/core'
 
 import { HostProvider, useHost } from '../../src/provider/HostProvider'
 

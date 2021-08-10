@@ -2,22 +2,22 @@ import type { ModuleHostElement } from './ModuleHostElement'
 import { ID_ATTRIBUTE } from './ModuleHostElement'
 import { getAttribute, isModuleHostElement } from './utils'
 
-interface IModulesRoot {
+export interface IModulesRoot {
   element: null
   children: IModulesNode[]
 }
 
-interface IModulesNode {
+export interface IModulesNode {
   element: ModuleHostElement
   children: IModulesNode[]
 }
 
 type IModulesTree<T> = T extends ModuleHostElement ? IModulesNode : IModulesRoot
 
-export function getModulesTree<T extends Element | ModuleHostElement>(
-  parent: T,
-): IModulesTree<T>
-export function getModulesTree(
+export function getModulesTreeWithNotSelector<
+  T extends Element | ModuleHostElement,
+>(parent: T): IModulesTree<T>
+export function getModulesTreeWithNotSelector(
   parent: Element | ModuleHostElement,
 ): IModulesRoot | IModulesNode {
   const selectors = [`[${ID_ATTRIBUTE}]`, `[${ID_ATTRIBUTE}]`]
@@ -27,20 +27,18 @@ export function getModulesTree(
   }
   const notQuery = selectors.join(' ')
   const elements = parent.querySelectorAll(`[${ID_ATTRIBUTE}]:not(${notQuery})`)
-  console.log({ notQuery })
-  console.log({ elements: Array.from(elements) })
 
   return {
     element: isModuleHostElement(parent) ? parent : null,
     children: Array.from(elements)
       .filter(isModuleHostElement)
       .map((e) => {
-        return getModulesTree(e)
+        return getModulesTreeWithNotSelector(e)
       }),
   }
 }
 
-export function getModulesTreeWithoutNotSelector(): IModulesRoot {
+export function getModulesTree(): IModulesRoot {
   const modules = document.body.querySelectorAll(`[${ID_ATTRIBUTE}]`)
   const map = new Map<null | Element, Element[]>()
 

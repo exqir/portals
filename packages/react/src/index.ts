@@ -15,8 +15,6 @@ export {
   useLoadingStatus,
 } from './provider/LoadingStatusProvider'
 
-export { MODULE_STATUS } from './internal/ModuleHostElement'
-
 export { Slot, Children } from './internal/Children'
 export { Host } from './internal/Host'
 
@@ -27,4 +25,3 @@ export { createUseCase } from './createUseCase'
 
 export { useBootstrapOptions } from './useBootstrapOptions'
 export { useHost } from './useHost'
-export { useRegistry } from './useRegistry'

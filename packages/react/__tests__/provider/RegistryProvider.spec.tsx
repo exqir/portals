@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
+import { ModuleHostElement } from '@portals/core'
 
 import type {
   IBootstrapOptions,
   IUseCaseOptions,
 } from '../../src/types/definitions'
 import { createRegistry } from '../../src/internal/registry'
-import { ModuleHostElement } from '../../src/internal/ModuleHostElement'
 
 import {
   RegistryProvider,

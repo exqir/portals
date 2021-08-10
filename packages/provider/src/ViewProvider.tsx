@@ -11,12 +11,11 @@ import React, {
   cloneElement,
 } from 'react'
 import { createBrowserHistory } from 'history'
+import { MODULE_STATUS } from "@portals/core"
 import {
-  useRegistry,
   useHost,
   useModuleStatus,
   useLoadingStatus,
-  MODULE_STATUS,
   Children,
   Host,
 } from '@portals/react'
@@ -148,7 +147,6 @@ function getAttribute(element: Element, attribute: string) {
 
 export function View() {
   const { host } = useHost()
-  const { registry } = useRegistry()
   const name = getAttribute(host, 'name')
   const { isActive, isPreloading, onNavigationStatusChange } = useView(name)
   const { setHidden, setLoaded } = useModuleStatus(host)
@@ -159,7 +157,7 @@ export function View() {
       // Set the view itself to hidden.
       setHidden()
     }
-  }, [isActive, setHidden, registry])
+  }, [isActive, setHidden])
 
   useLayoutEffect(() => {
     if (isActive) {
