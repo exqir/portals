@@ -2,7 +2,6 @@ import type { ReactElement } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
 import { ModuleHostElement, MODULE_STATUS } from '@portals/core'
 
-import { createRegistry } from '../../src/internal/registry'
 import { HostProvider } from '../../src/provider/HostProvider'
 import { LoadingStatusProvider } from '../../src/provider/LoadingStatusProvider'
 
@@ -16,14 +15,19 @@ const render = (
   element: ReactElement,
   { hosts }: { hosts: ModuleHostElement[] },
 ) => {
-  const host = new ModuleHostElement(new Set())
-  const childRegistry = createRegistry()
-  hosts.forEach((h) => childRegistry.register(h, createRegistry()))
-  const registry = createRegistry()
-  registry.register(host, childRegistry)
+  const host = new ModuleHostElement()
+  const tree = {
+    element: null,
+    children: [
+      {
+        element: host,
+        children: hosts.map((element) => ({ element, children: [] })),
+      },
+    ],
+  }
 
   const queries = tlrRender(
-    <LoadingStatusProvider registry={registry}>
+    <LoadingStatusProvider modulesTree={tree}>
       <HostProvider host={host}>{element}</HostProvider>
     </LoadingStatusProvider>,
   )
@@ -33,8 +37,8 @@ const render = (
 
 describe('[internal/Children] Children', () => {
   test('should render all children provided via ChildrenProvider', () => {
-    const host1 = new ModuleHostElement(new Set())
-    const host2 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
+    const host2 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -58,7 +62,7 @@ describe('[internal/Children] Children', () => {
   })
 
   test('should render children when condition is `true`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -78,7 +82,7 @@ describe('[internal/Children] Children', () => {
   })
 
   test('should not render children when condition is `false`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -98,7 +102,7 @@ describe('[internal/Children] Children', () => {
   })
 
   test('should render children when condition evaluates to `true`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -118,7 +122,7 @@ describe('[internal/Children] Children', () => {
   })
 
   test('should not render children when condition evaluates to `false`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -138,7 +142,7 @@ describe('[internal/Children] Children', () => {
   })
 
   test('should set status of childrens host to `HIDDEN` when children are not rendered', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -172,7 +176,7 @@ describe('[internal/Children] Children', () => {
   })
 
   test('should offer a map prop to manipulate the childrens content', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>
@@ -197,9 +201,9 @@ describe('[internal/Children] Children', () => {
 
 describe('[internal/Children] Slot', () => {
   test('should render children matching name provided via ChildrenProvider', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
-    const host2 = new ModuleHostElement(new Set())
+    const host2 = new ModuleHostElement()
     host2.setAttribute('slot', 'b')
     const content = [
       <HostProvider host={host1} key="1">
@@ -231,7 +235,7 @@ describe('[internal/Children] Slot', () => {
   })
 
   test('should render children when condition is `true`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
     const content = [
       <HostProvider host={host1} key="1">
@@ -252,7 +256,7 @@ describe('[internal/Children] Slot', () => {
   })
 
   test('should not render children when condition is `false`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
     const content = [
       <HostProvider host={host1} key="1">
@@ -273,7 +277,7 @@ describe('[internal/Children] Slot', () => {
   })
 
   test('should render children when condition evaluates to `true`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
     const content = [
       <HostProvider host={host1} key="1">
@@ -294,7 +298,7 @@ describe('[internal/Children] Slot', () => {
   })
 
   test('should not render children when condition evaluates to `false`', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
     const content = [
       <HostProvider host={host1} key="1">
@@ -315,7 +319,7 @@ describe('[internal/Children] Slot', () => {
   })
 
   test('should set status of childrens host to `HIDDEN` when children are not rendered', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
     const content = [
       <HostProvider host={host1} key="1">
@@ -349,7 +353,7 @@ describe('[internal/Children] Slot', () => {
   })
 
   test('should offer a map prop to manipulate the childrens content', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
     const content = [
       <HostProvider host={host1} key="1">
@@ -376,9 +380,9 @@ describe('[internal/Children] Slot', () => {
 
 describe('[internal/Children]', () => {
   test('should allow Children and Slot component to be used together', () => {
-    const host1 = new ModuleHostElement(new Set())
+    const host1 = new ModuleHostElement()
     host1.setAttribute('slot', 'a')
-    const host2 = new ModuleHostElement(new Set())
+    const host2 = new ModuleHostElement()
     const content = [
       <HostProvider host={host1} key="1">
         <div>Child1</div>

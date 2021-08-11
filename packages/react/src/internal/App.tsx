@@ -4,13 +4,11 @@ import React, { Suspense } from 'react'
 
 import type {
   IModulesMap,
-  IRegistry,
   IProvider,
   IBootstrapOptions,
   IUseCaseOptions,
   IModuleDefinition,
 } from '../types/definitions'
-import { RegistryProvider } from '../provider/RegistryProvider'
 import { LoadingStatusProvider } from '../provider/LoadingStatusProvider'
 import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
 import { HostProvider, useHost } from '../provider/HostProvider'

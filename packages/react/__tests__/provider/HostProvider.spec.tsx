@@ -9,7 +9,7 @@ beforeAll(() => {
 })
 
 const render = (element: ReactElement) => {
-  const host = new ModuleHostElement(new Set())
+  const host = new ModuleHostElement()
 
   const queries = tlrRender(<HostProvider host={host}>{element}</HostProvider>)
 
@@ -28,7 +28,7 @@ describe('[provider/HostProvider]', () => {
   })
 
   test('should provide ModuleHostElement through context', () => {
-    const host = new ModuleHostElement(new Set())
+    const host = new ModuleHostElement()
     const Component = () => {
       const { host: hostFromContext } = useHost()
       expect(hostFromContext).toBe(host)

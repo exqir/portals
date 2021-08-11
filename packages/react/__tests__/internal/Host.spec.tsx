@@ -11,7 +11,7 @@ beforeAll(() => {
 })
 
 const render = (element: ReactElement) => {
-  const host = new ModuleHostElement(new Set())
+  const host = new ModuleHostElement()
 
   document.body.appendChild(host)
   const queries = tlrRender(<HostProvider host={host}>{element}</HostProvider>)

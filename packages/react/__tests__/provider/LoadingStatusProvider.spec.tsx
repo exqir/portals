@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react'
 import { screen, render as tlrRender, fireEvent } from '@testing-library/react'
 import { ModuleHostElement, MODULE_STATUS } from '@portals/core'
 
-import { createRegistry } from '../../src/internal/registry'
 import { HostProvider, useHost } from '../../src/provider/HostProvider'
 
 import {
@@ -20,14 +19,19 @@ const render = (
   element: ReactElement,
   { children }: { children: ModuleHostElement[] },
 ) => {
-  const host = new ModuleHostElement(new Set())
-  const childRegistry = createRegistry()
-  children.forEach((c) => childRegistry.register(c, createRegistry()))
-  const registry = createRegistry()
-  registry.register(host, childRegistry)
+  const host = new ModuleHostElement()
+  const tree = {
+    element: null,
+    children: [
+      {
+        element: host,
+        children: children.map((element) => ({ element, children: [] })),
+      },
+    ],
+  }
 
   const queries = tlrRender(
-    <LoadingStatusProvider registry={registry}>
+    <LoadingStatusProvider modulesTree={tree}>
       <HostProvider host={host}>{element}</HostProvider>
     </LoadingStatusProvider>,
   )
@@ -83,8 +87,8 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
   })
 
   test('should provide module loading status through context when called with host', async () => {
-    const child1 = new ModuleHostElement(new Set())
-    const child2 = new ModuleHostElement(new Set())
+    const child1 = new ModuleHostElement()
+    const child2 = new ModuleHostElement()
     const Component = ({
       name,
       children,
@@ -124,8 +128,8 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
   })
 
   test('should return parent status as loading when a child is in a loading status', async () => {
-    const child1 = new ModuleHostElement(new Set())
-    const child2 = new ModuleHostElement(new Set())
+    const child1 = new ModuleHostElement()
+    const child2 = new ModuleHostElement()
     const Component = ({
       name,
       children,
@@ -178,8 +182,8 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
   })
 
   test('should return parent status as error when a child is in an error status', async () => {
-    const child1 = new ModuleHostElement(new Set())
-    const child2 = new ModuleHostElement(new Set())
+    const child1 = new ModuleHostElement()
+    const child2 = new ModuleHostElement()
     const Component = ({
       name,
       children,

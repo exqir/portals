@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react'
 import { Suspense } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
-import { ModuleHostElement } from '@portals/core'
+import { ModuleHostElement, createCustomElements } from '@portals/core'
 
-import { createRegistry } from '../../src/internal/registry'
 import { BootstrapOptionsProvider } from '../../src/provider/BootstrapOptionsProvider'
 import { HostProvider } from '../../src/provider/HostProvider'
 import { LoadingStatusProvider } from '../../src/provider/LoadingStatusProvider'
@@ -12,12 +11,15 @@ import { createLoadableComponent } from '../../src/internal/createLoadableCompon
 
 beforeAll(() => {
   customElements.define('module-element', ModuleHostElement)
+  // createCustomElements(['module-element'])
 })
 
 const render = (element: ReactElement) => {
-  const host = new ModuleHostElement(new Set())
-  const registry = createRegistry()
-  registry.register(host, createRegistry())
+  const host = new ModuleHostElement()
+  const tree = {
+    element: null,
+    children: [{ element: host, children: [] }],
+  }
 
   const queries = tlrRender(
     <BootstrapOptionsProvider
@@ -28,7 +30,7 @@ const render = (element: ReactElement) => {
       }}
     >
       <HostProvider host={host}>
-        <LoadingStatusProvider registry={registry}>
+        <LoadingStatusProvider modulesTree={tree}>
           <Suspense fallback={'Suspense'}>{element}</Suspense>
         </LoadingStatusProvider>
       </HostProvider>
@@ -38,7 +40,7 @@ const render = (element: ReactElement) => {
   return { host, ...queries }
 }
 
-describe('[internal/createLoadabaleComponent]', () => {
+describe('[internal/createLoadableComponent]', () => {
   test('should return a Suspense-ready component', async () => {
     const Component = () => Promise.resolve({ default: () => <>Component</> })
     const LoadableComponent = createLoadableComponent({ component: Component })

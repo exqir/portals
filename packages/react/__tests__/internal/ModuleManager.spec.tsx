@@ -6,7 +6,6 @@ import type {
   IBootstrapOptions,
   IUseCaseOptions,
 } from '../../src/types/definitions'
-import { createRegistry } from '../../src/internal/registry'
 import { BootstrapOptionsProvider } from '../../src/provider/BootstrapOptionsProvider'
 import { HostProvider } from '../../src/provider/HostProvider'
 import { LoadingStatusProvider } from '../../src/provider/LoadingStatusProvider'
@@ -21,9 +20,11 @@ const render = (
   element: ReactElement,
   options?: Partial<IBootstrapOptions & IUseCaseOptions>,
 ) => {
-  const host = new ModuleHostElement(new Set())
-  const registry = createRegistry()
-  registry.register(host, createRegistry())
+  const host = new ModuleHostElement()
+  const tree = {
+    element: null,
+    children: [{ element: host, children: [] }],
+  }
 
   const queries = tlrRender(
     <BootstrapOptionsProvider
@@ -34,7 +35,7 @@ const render = (
         ...options,
       }}
     >
-      <LoadingStatusProvider registry={registry}>
+      <LoadingStatusProvider modulesTree={tree}>
         <HostProvider host={host}>{element}</HostProvider>
       </LoadingStatusProvider>
     </BootstrapOptionsProvider>,
