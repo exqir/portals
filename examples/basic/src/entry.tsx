@@ -1,4 +1,4 @@
-import { createUseCase } from '@portals/core'
+import { createUseCase } from '@portals/react'
 import { AppProvider, ModuleProvider } from '@portals/provider'
 
 import './styles.css'

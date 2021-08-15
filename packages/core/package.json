@@ -1,7 +1,7 @@
 {
   "name": "@portals/core",
   "version": "0.0.1",
-  "description": "Core functionality to render React Components into portals. ",
+  "description": "Core functionality to create an application out of custom-elements.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/exqir/portals.git",
@@ -10,17 +10,8 @@
   "author": "Malte Sellmer",
   "license": "MIT",
   "sideEffects": false,
-  "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
-  },
   "dependencies": {
-    "tslib": "^2.2.0",
-    "use-asset": "^1.0.4",
-    "use-subscription": "1.5.1"
-  },
-  "devDependencies": {
-    "@types/use-subscription": "^1.0.0"
+    "tslib": "^2.2.0"
   },
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import React, { Fragment, useState, useEffect } from 'react'
-import { useBootstrapOptions, useLoadingStatus, LOADING_STATUS } from '@portals/core'
+import { useBootstrapOptions, useLoadingStatus, LOADING_STATUS } from '@portals/react'
 
 interface IGlobalLoadingIndiactorState {
   status: LOADING_STATUS
@@ -38,7 +38,7 @@ export function GlobalLoadingProvider({ children }: GlobalLoadingProviderProps) 
         // already.
         // On the other hand these should not be part of the options if it can be avoided.
         // The options have a place for specific options but this has not to be defined
-        // during usage of a use case but can rather be defined while creating a use case. 
+        // during usage of a use case but can rather be defined while creating a use case.
         <div
           style={{
             position: 'fixed',

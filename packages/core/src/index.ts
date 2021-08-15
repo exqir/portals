@@ -1,30 +1,6 @@
-export type {
-  IBootstrapOptions,
-  IPreload,
-  IProvider,
-  IModuleDefinition,
-  IOnInitHook,
-} from './types/definitions'
+export type { IModulesRoot, IModulesNode } from './getModulesTree';
 
-// TODO: This should rather be available as @protals/core/provider instead
-// of directly from @portals/core.
-export {
-  LoadingStatusProvider,
-  LOADING_STATUS,
-  useModuleStatus,
-  useLoadingStatus,
-} from './provider/LoadingStatusProvider'
-
-export { MODULE_STATUS } from './internal/ModuleHostElement'
-
-export { Slot, Children } from './internal/Children'
-export { Host } from './internal/Host'
-
-export { combineProvider } from './combineProvider'
-export { createModule } from './createModule'
-export { createProvider, createContext } from './createProvider'
-export { createUseCase } from './createUseCase'
-
-export { useBootstrapOptions } from './useBootstrapOptions'
-export { useHost } from './useHost'
-export { useRegistry } from './useRegistry'
+export { createCustomElements } from './createCustomElements';
+export { getModulesTree } from './getModulesTree';
+export { ModuleHostElement, MODULE_STATUS } from './ModuleHostElement'
+export { getAttribute, identity, isFunction, isModuleHostElement, isUndefined, noop } from './utils';

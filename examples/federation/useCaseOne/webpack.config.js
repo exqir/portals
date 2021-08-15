@@ -42,6 +42,7 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
       '@portals/core': path.resolve(__dirname, '../../../packages/core/src'),
+      '@portals/react': path.resolve(__dirname, '../../../packages/react/src'),
       '@portals/provider': path.resolve(
         __dirname,
         '../../../packages/provider/src',

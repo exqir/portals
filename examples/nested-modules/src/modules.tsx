@@ -1,6 +1,6 @@
-import type { IModuleDefinition } from "@portals/core";
+import type { IModuleDefinition } from "@portals/react";
 
-import { createModule } from "@portals/core";
+import { createModule } from "@portals/react";
 
 export const modules = new Map<string, IModuleDefinition>([
   createModule({

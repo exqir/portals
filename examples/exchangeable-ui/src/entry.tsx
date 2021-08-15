@@ -1,4 +1,4 @@
-import { createUseCase, combineProvider } from '@portals/core'
+import { createUseCase, combineProvider } from '@portals/react'
 import { GlobalLoadingProvider, ViewProvider } from '@portals/provider'
 
 import { UIProvider } from './provider/UIProvider'

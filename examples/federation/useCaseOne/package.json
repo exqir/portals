@@ -8,7 +8,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@portals/core": "*",
+    "@portals/react": "*",
     "@portals/provider": "*",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"

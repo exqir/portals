@@ -11,18 +11,14 @@ import React, {
   cloneElement,
 } from 'react'
 import { createBrowserHistory } from 'history'
+import { MODULE_STATUS, noop } from "@portals/core"
 import {
-  useRegistry,
   useHost,
   useModuleStatus,
   useLoadingStatus,
-  MODULE_STATUS,
   Children,
   Host,
-} from '@portals/core'
-
-// Should we move core utils to its own package so that they can be shared?
-function noop() {}
+} from '@portals/react'
 
 function initHistory() {
   return createBrowserHistory()
@@ -148,7 +144,6 @@ function getAttribute(element: Element, attribute: string) {
 
 export function View() {
   const { host } = useHost()
-  const { registry } = useRegistry()
   const name = getAttribute(host, 'name')
   const { isActive, isPreloading, onNavigationStatusChange } = useView(name)
   const { setHidden, setLoaded } = useModuleStatus(host)
@@ -159,7 +154,7 @@ export function View() {
       // Set the view itself to hidden.
       setHidden()
     }
-  }, [isActive, setHidden, registry])
+  }, [isActive, setHidden])
 
   useLayoutEffect(() => {
     if (isActive) {

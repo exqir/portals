@@ -1,4 +1,4 @@
-import { createUseCase, combineProvider } from '@portals/core'
+import { createUseCase, combineProvider } from '@portals/react'
 import { GlobalLoadingProvider } from '@portals/provider'
 
 import { GraphQLProvider } from './provider/GraphQLProvider'

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Slot, Children } from '@portals/core'
+import { Slot, Children } from '@portals/react'
 
 import { ModuleBox } from '../components/ModuleBox'
 import { Portal } from '../components/Portal'

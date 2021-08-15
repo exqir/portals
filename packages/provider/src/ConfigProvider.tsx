@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import type { IBootstrapOptions, IPreload } from "@portals/core";
+import type { IBootstrapOptions, IPreload } from "@portals/react";
 import React, { useState, createContext, useContext } from "react";
-import { createProvider, useHost, useBootstrapOptions } from "@portals/core";
+import { createProvider, useHost, useBootstrapOptions } from "@portals/react";
 
 function extractModuleConfig(
   config: Record<string, unknown>,
