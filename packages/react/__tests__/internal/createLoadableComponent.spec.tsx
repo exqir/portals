@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { Suspense } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
-import { ModuleHostElement, createCustomElements } from '@portals/core'
+import { ModuleHostElement } from '@portals/core'
 
 import { BootstrapOptionsProvider } from '../../src/provider/BootstrapOptionsProvider'
 import { HostProvider } from '../../src/provider/HostProvider'
@@ -11,7 +11,6 @@ import { createLoadableComponent } from '../../src/internal/createLoadableCompon
 
 beforeAll(() => {
   customElements.define('module-element', ModuleHostElement)
-  // createCustomElements(['module-element'])
 })
 
 const render = (element: ReactElement) => {
