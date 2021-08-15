@@ -11,7 +11,7 @@ import React, {
   cloneElement,
 } from 'react'
 import { createBrowserHistory } from 'history'
-import { MODULE_STATUS } from "@portals/core"
+import { MODULE_STATUS, noop } from "@portals/core"
 import {
   useHost,
   useModuleStatus,
@@ -19,9 +19,6 @@ import {
   Children,
   Host,
 } from '@portals/react'
-
-// Should we move core utils to its own package so that they can be shared?
-function noop() {}
 
 function initHistory() {
   return createBrowserHistory()

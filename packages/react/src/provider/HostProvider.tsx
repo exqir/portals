@@ -1,4 +1,4 @@
-import type { ModuleHostElement } from '../internal/ModuleHostElement'
+import type { ModuleHostElement } from '@portals/core'
 import { createContext } from '../createProvider'
 interface IHostContext {
   host: ModuleHostElement

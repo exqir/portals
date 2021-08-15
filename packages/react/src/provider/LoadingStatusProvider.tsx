@@ -3,7 +3,6 @@ import type { ModuleHostElement, IModulesRoot } from '@portals/core'
 import React, { useReducer, useCallback } from 'react'
 import { MODULE_STATUS, isUndefined } from '@portals/core'
 
-import type { IRegistry } from '../types/definitions'
 import { createContext } from '../createProvider'
 
 export enum LOADING_STATUS {
