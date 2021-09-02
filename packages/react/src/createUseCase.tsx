@@ -8,7 +8,6 @@ import type {
   IUseCaseOptions,
   IModuleDefinition,
   IProvider,
-  IRegistry,
 } from './types/definitions'
 
 import { App } from './internal/App'
@@ -51,7 +50,11 @@ function render(
   AppProvider?: IProvider,
   ModuleProvider?: IProvider,
 ) {
-  const rootElement = document.getElementById('root')
+  // We don't need to add the rootElement to the DOM
+  // because all top-level elements will be rendered
+  // to the host custom-elements that are already in
+  // the DOM via portals.
+  const rootElement = document.createElement('div')
   ReactDOM.render(
     <StrictMode>
       <App
