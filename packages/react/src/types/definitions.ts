@@ -1,5 +1,4 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react'
-import type { ModuleHostElement } from '@portals/core'
 
 import type { IPreload } from '../internal/createPreload'
 
@@ -16,16 +15,6 @@ export interface IOnInitResult<Payload = unknown> {
 export type IModuleDefinition = ComponentType<any>
 
 export type IModulesMap = Map<string, IModuleDefinition>
-
-export type IRegistryTree = Map<ModuleHostElement, IRegistry>
-
-export interface IRegistry {
-  getRegistry: (element: ModuleHostElement) => IRegistry | undefined
-  getElements: () => ModuleHostElement[]
-  register: (element: ModuleHostElement, children: IRegistry) => void
-  unregister: (element: ModuleHostElement) => void
-  __r: IRegistryTree
-}
 
 export interface IProviderOptions<Props = unknown, Payload = unknown> {
   Component: IProvider<Props>
