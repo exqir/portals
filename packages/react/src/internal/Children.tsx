@@ -8,7 +8,12 @@ import React, {
   isValidElement,
   useMemo,
 } from 'react'
-import { isUndefined, isFunction, isModuleHostElement } from '@portals/core'
+import {
+  isUndefined,
+  isFunction,
+  isModuleHostElement,
+  getAttribute,
+} from '@portals/core'
 
 import { useHost } from '../provider/HostProvider'
 import { useModuleStatus } from '../provider/LoadingStatusProvider'
@@ -88,10 +93,6 @@ const ChildrenContext = createContext<IChildrenContext>({
 interface IChildrenProviderProps {
   content: ReactNode
   children: ReactNode
-}
-
-function getAttribute(element: Element, attribute: string) {
-  return element.attributes.getNamedItem(attribute)?.value
 }
 
 export function ChildrenProvider({
