@@ -40,6 +40,10 @@ export function createUseCase({
         AppProvider,
         ModuleProvider,
       ),
+    modules,
+    AppProvider,
+    ModuleProvider,
+    useCaseOptions: useCaseOptions as IUseCaseOptions,
   }
 }
 

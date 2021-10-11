@@ -1,0 +1,24 @@
+{
+  "name": "@portals/testing",
+  "version": "0.0.1",
+  "description": "Testing helpers for app build with portals.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exqir/portals.git",
+    "directory": "packages/testing"
+  },
+  "author": "Malte Sellmer",
+  "license": "MIT",
+  "sideEffects": false,
+  "dependencies": {
+    "@portals/core": "0.0.1",
+    "@portals/react": "0.0.1",
+    "tslib": "^2.2.0"
+  },
+  "peerDependencies": {
+    "@testing-library/react": "^11.2.6"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
