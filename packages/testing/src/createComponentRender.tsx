@@ -9,8 +9,8 @@ import {
 } from '@portals/react/testing'
 
 interface ICreateComponentRenderOptions {
-  defaultAppProvider: IProvider
-  defaultModuleProvider: IProvider
+  defaultAppProvider?: IProvider
+  defaultModuleProvider?: IProvider
   defaultBootstrapOptions: IBootstrapOptions
 }
 
