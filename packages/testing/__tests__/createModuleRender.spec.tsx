@@ -8,7 +8,7 @@ import {
   IOnInitHook,
 } from '@portals/react'
 
-import { createModuleRender } from '../src/render'
+import { createModuleRender } from '../src/createModuleRender'
 
 const tag = 'module-element'
 
