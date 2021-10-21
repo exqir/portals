@@ -60,7 +60,7 @@ function useCondition(condition?: Condition, name?: string) {
   // setHidden set the host explizitly for each call.
   const { host } = useHost()
   const { children } = useChildren(name)
-  const { setHidden } = useModuleStatus(host)
+  const { setHidden, setVisibile } = useModuleStatus(host)
 
   const shouldRender = isUndefined(condition)
     ? true
@@ -73,6 +73,12 @@ function useCondition(condition?: Condition, name?: string) {
       ReactChildren.forEach(children, (child) => {
         if (isValidElement(child) && isModuleHostElement(child.props.host)) {
           setHidden(child.props.host)
+        }
+      })
+    } else {
+      ReactChildren.forEach(children, (child) => {
+        if (isValidElement(child) && isModuleHostElement(child.props.host)) {
+          setVisibile(child.props.host)
         }
       })
     }

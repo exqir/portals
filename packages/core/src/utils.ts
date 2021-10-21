@@ -14,6 +14,10 @@ export function isUndefined(value: any): value is undefined {
   return typeof value === 'undefined'
 }
 
+export function isNull(value: any): value is null {
+  return value === null
+}
+
 export function isModuleHostElement(
   element: Element,
 ): element is ModuleHostElement {

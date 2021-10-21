@@ -1,14 +1,14 @@
 import type { ReactElement, ReactNode } from 'react'
 import { screen, render as tlrRender, fireEvent } from '@testing-library/react'
-import { ModuleHostElement, MODULE_STATUS } from '@portals/core'
+import { ModuleHostElement } from '@portals/core'
 
 import { HostProvider, useHost } from '../../src/provider/HostProvider'
 
 import {
   LoadingStatusProvider,
-  useLoadingStatus,
+  useGlobalLoadingStatus,
+  useChildrenLoadingStatus,
   useModuleStatus,
-  LOADING_STATUS,
 } from '../../src/provider/LoadingStatusProvider'
 
 beforeAll(() => {
@@ -51,42 +51,44 @@ describe('[provider/LoadingStatusProvider] LoadingStatusProvider', () => {
   })
 })
 
-describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
+describe('[provider/LoadingStatusProvider] useGlobalLoadingStatus', () => {
   test('should provide initial global loading status through context', () => {
     const Component = () => {
-      const { loadingStatus } = useLoadingStatus()
-      return <>{loadingStatus}</>
+      const { isLoading } = useGlobalLoadingStatus()
+      return <>loading: {JSON.stringify(isLoading)}</>
     }
 
     render(<Component />, { children: [] })
 
-    screen.getByText(LOADING_STATUS.INIT)
+    screen.getByText('loading: true')
   })
 
   test('should provide updated global loading status through context', async () => {
     const Component = () => {
       const { host } = useHost()
-      const { setLoading } = useModuleStatus(host)
-      const { loadingStatus } = useLoadingStatus()
+      const { setLoaded } = useModuleStatus(host)
+      const { isLoading } = useGlobalLoadingStatus()
 
       return (
         <>
-          STATUS: <span>{loadingStatus}</span>
-          <button onClick={() => setLoading()}>setLoading</button>
+          loading: {JSON.stringify(isLoading)}
+          <button onClick={() => setLoaded()}>setLoaded</button>
         </>
       )
     }
 
     render(<Component />, { children: [] })
 
-    screen.getByText(LOADING_STATUS.INIT)
+    screen.getByText('loading: true')
 
-    fireEvent.click(screen.getByRole('button', { name: 'setLoading' }))
+    fireEvent.click(screen.getByRole('button', { name: 'setLoaded' }))
 
-    await screen.findByText(LOADING_STATUS.LOADING)
+    await screen.findByText('loading: false')
   })
+})
 
-  test('should provide module loading status through context when called with host', async () => {
+describe('[provider/LoadingStatusProvider] useChildrenLoadingStatus', () => {
+  test('should provide loading status of children through context when called with host', async () => {
     const child1 = new ModuleHostElement()
     const child2 = new ModuleHostElement()
     const Component = ({
@@ -97,13 +99,13 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
       children?: ReactNode
     }) => {
       const { host } = useHost()
-      const { loadingStatus } = useLoadingStatus(host)
+      const { isLoading } = useChildrenLoadingStatus(host)
 
       return (
         <>
           STATUS:{' '}
           <span>
-            {name} {loadingStatus}
+            {name} children loading: {JSON.stringify(isLoading)}
           </span>
           {children}
         </>
@@ -122,12 +124,12 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
       { children: [child1, child2] },
     )
 
-    screen.getByText(`parent ${MODULE_STATUS.REGISTERED}`)
-    screen.getByText(`child1 ${MODULE_STATUS.REGISTERED}`)
-    screen.getByText(`child2 ${MODULE_STATUS.REGISTERED}`)
+    screen.getByText('parent children loading: true')
+    screen.getByText('child1 children loading: false')
+    screen.getByText('child1 children loading: false')
   })
 
-  test('should return parent status as loading when a child is in a loading status', async () => {
+  test('should consider children as loading until all children have finished loading', async () => {
     const child1 = new ModuleHostElement()
     const child2 = new ModuleHostElement()
     const Component = ({
@@ -138,16 +140,15 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
       children?: ReactNode
     }) => {
       const { host } = useHost()
-      const { setLoading, setLoaded } = useModuleStatus(host)
-      const { loadingStatus } = useLoadingStatus(host)
+      const { setLoaded } = useModuleStatus(host)
+      const { isLoading } = useChildrenLoadingStatus(host)
 
       return (
         <>
           STATUS:{' '}
           <span>
-            {name} {loadingStatus}
+            {name} children loading: {JSON.stringify(isLoading)}
           </span>
-          <button onClick={() => setLoading()}>{name} setLoading</button>
           <button onClick={() => setLoaded()}>{name} setLoaded</button>
           {children}
         </>
@@ -166,22 +167,18 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
       { children: [child1, child2] },
     )
 
-    screen.getByText(`parent ${MODULE_STATUS.REGISTERED}`)
-    screen.getByText(`child1 ${MODULE_STATUS.REGISTERED}`)
-    screen.getByText(`child2 ${MODULE_STATUS.REGISTERED}`)
+    screen.getByText('parent children loading: true')
+    screen.getByText('child1 children loading: false')
+    screen.getByText('child2 children loading: false')
 
-    // We need to set the parent to be loaded otherwise it is always considered
-    // to be in a dirty state and will therefore use the modules state and not
-    // that of its sub-tree since it can not be ready.
-    fireEvent.click(screen.getByRole('button', { name: 'parent setLoaded' }))
-    fireEvent.click(screen.getByRole('button', { name: 'child1 setLoading' }))
+    fireEvent.click(screen.getByRole('button', { name: 'child1 setLoaded' }))
+    await screen.findByText('parent children loading: true')
 
-    await screen.findByText(`parent ${MODULE_STATUS.LOADING}`)
-    await screen.findByText(`child1 ${MODULE_STATUS.LOADING}`)
-    await screen.findByText(`child2 ${MODULE_STATUS.REGISTERED}`)
+    fireEvent.click(screen.getByRole('button', { name: 'child2 setLoaded' }))
+    await screen.findByText('parent children loading: false')
   })
 
-  test('should return parent status as error when a child is in an error status', async () => {
+  test('should consider children as having an error when at least one child has an error', async () => {
     const child1 = new ModuleHostElement()
     const child2 = new ModuleHostElement()
     const Component = ({
@@ -192,17 +189,19 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
       children?: ReactNode
     }) => {
       const { host } = useHost()
-      const { setError, setLoaded } = useModuleStatus(host)
-      const { loadingStatus } = useLoadingStatus(host)
+      const { setError } = useModuleStatus(host)
+      const { isLoading, hasError } = useChildrenLoadingStatus(host)
 
       return (
         <>
           STATUS:{' '}
           <span>
-            {name} {loadingStatus}
+            {name} children loading: {JSON.stringify(isLoading)}
+          </span>
+          <span>
+            {name} children error: {JSON.stringify(hasError)}
           </span>
           <button onClick={() => setError()}>{name} setError</button>
-          <button onClick={() => setLoaded()}>{name} setLoaded</button>
           {children}
         </>
       )
@@ -220,18 +219,11 @@ describe('[provider/LoadingStatusProvider] useLoadingStatus', () => {
       { children: [child1, child2] },
     )
 
-    screen.getByText(`parent ${MODULE_STATUS.REGISTERED}`)
-    screen.getByText(`child1 ${MODULE_STATUS.REGISTERED}`)
-    screen.getByText(`child2 ${MODULE_STATUS.REGISTERED}`)
+    screen.getByText('parent children loading: true')
+    screen.getByText('parent children error: false')
 
-    // We need to set the parent to be loaded otherwise it is always considered
-    // to be in a dirty state and will therefore use the modules state and not
-    // that of its sub-tree since it can not be ready.
-    fireEvent.click(screen.getByRole('button', { name: 'parent setLoaded' }))
     fireEvent.click(screen.getByRole('button', { name: 'child1 setError' }))
-
-    await screen.findByText(`parent ${MODULE_STATUS.ERROR}`)
-    await screen.findByText(`child1 ${MODULE_STATUS.ERROR}`)
-    await screen.findByText(`child2 ${MODULE_STATUS.REGISTERED}`)
+    await screen.findByText('parent children loading: false')
+    await screen.findByText('parent children error: true')
   })
 })

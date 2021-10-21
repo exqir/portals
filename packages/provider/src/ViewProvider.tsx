@@ -1,5 +1,5 @@
-import type { Dispatch, SetStateAction, ReactNode } from "react";
-import type { Location, History } from "history";
+import type { Dispatch, SetStateAction, ReactNode } from 'react'
+import type { Location, History } from 'history'
 import React, {
   useState,
   createContext,
@@ -11,11 +11,10 @@ import React, {
   cloneElement,
 } from 'react'
 import { createBrowserHistory } from 'history'
-import { MODULE_STATUS, noop } from "@portals/core"
+import { noop } from '@portals/core'
 import {
   useHost,
-  useModuleStatus,
-  useLoadingStatus,
+  useChildrenLoadingStatus,
   Children,
   Host,
 } from '@portals/react'
@@ -83,7 +82,7 @@ export function ViewProvider({ children }: ViewProviderProps) {
   })
 
   const setView = useCallback((view: string | ISetViewFunction): void => {
-    setViewState(vs => ({
+    setViewState((vs) => ({
       active: vs.active,
       next: typeof view === 'function' ? view(vs.active) : view,
     }))
@@ -92,11 +91,11 @@ export function ViewProvider({ children }: ViewProviderProps) {
   const onNavigationStatusChange = useCallback(
     (status: NAVIGATION_STATUS) => {
       if (status === NAVIGATION_STATUS.ERROR) {
-        setViewState(vs => ({ active: vs.active, next: null }))
+        setViewState((vs) => ({ active: vs.active, next: null }))
       } else {
         if (status === NAVIGATION_STATUS.SUCCESS) {
           // @ts-ignore
-          setViewState(vs => {
+          setViewState((vs) => {
             // @ts-ignore
             setActiveLocationView(history, vs.next)
             return { active: vs.next, next: null }
@@ -122,12 +121,8 @@ export function ViewProvider({ children }: ViewProviderProps) {
 }
 
 export function useView(name?: string) {
-  const {
-    activeView,
-    nextView,
-    setView,
-    onNavigationStatusChange,
-  } = useContext(ViewContext)
+  const { activeView, nextView, setView, onNavigationStatusChange } =
+    useContext(ViewContext)
 
   return {
     isActive: name === activeView,
@@ -146,15 +141,7 @@ export function View() {
   const { host } = useHost()
   const name = getAttribute(host, 'name')
   const { isActive, isPreloading, onNavigationStatusChange } = useView(name)
-  const { setHidden, setLoaded } = useModuleStatus(host)
-  const { loadingStatus } = useLoadingStatus(host)
-
-  useEffect(() => {
-    if (!isActive) {
-      // Set the view itself to hidden.
-      setHidden()
-    }
-  }, [isActive, setHidden])
+  const { hasError, isRendered } = useChildrenLoadingStatus(host)
 
   useLayoutEffect(() => {
     if (isActive) {
@@ -165,23 +152,20 @@ export function View() {
   }, [isActive, host])
 
   useEffect(() => {
-    console.log('View loading status', { loadingStatus })
     if (isPreloading) {
-      // Set View itself to loaded
-      setLoaded()
-      if (loadingStatus === MODULE_STATUS.ERROR) {
-        return onNavigationStatusChange(NAVIGATION_STATUS.ERROR)
+      if (hasError) {
+        onNavigationStatusChange(NAVIGATION_STATUS.ERROR)
       }
-      if (loadingStatus === MODULE_STATUS.RENDERED) {
-        return onNavigationStatusChange(NAVIGATION_STATUS.SUCCESS)
+      if (isRendered) {
+        onNavigationStatusChange(NAVIGATION_STATUS.SUCCESS)
       }
     }
-  }, [isPreloading, loadingStatus, onNavigationStatusChange, setLoaded])
+  }, [isPreloading, hasError, isRendered, onNavigationStatusChange])
 
   return (
     <Children
       condition={isActive || isPreloading}
-      map={child => {
+      map={(child) => {
         if (isValidElement(child)) {
           const { children, ...props } = child.props
           // Wrap the modules children in Host component to render them to the actual

@@ -10,9 +10,9 @@ export type {
 // of directly from @portals/react.
 export {
   LoadingStatusProvider,
-  LOADING_STATUS,
   useModuleStatus,
-  useLoadingStatus,
+  useGlobalLoadingStatus,
+  useChildrenLoadingStatus,
 } from './provider/LoadingStatusProvider'
 
 export { Slot, Children } from './internal/Children'

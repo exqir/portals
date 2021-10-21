@@ -27,6 +27,7 @@ export function ModuleManager<Payload>({
     if (error) setError()
     else if (loading) setLoading()
     else setLoaded()
+    return () => setLoading()
   }, [setError, setLoading, setLoaded, error, loading])
 
   return (
