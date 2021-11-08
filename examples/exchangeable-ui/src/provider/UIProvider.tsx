@@ -1,7 +1,8 @@
 import type { ComponentType, ReactNode } from 'react'
 import type { IRuntimeOptions, IPreload } from '@portals/react'
 import React, { createContext, useContext } from 'react'
-import { createProvider, useBootstrapOptions } from '@portals/react'
+import { isUndefined } from '@portals/core'
+import { createProvider, useRuntimeOptions } from '@portals/react'
 
 import { IButtonProps, ITextProps } from '../ui/definitions'
 
@@ -13,13 +14,13 @@ interface IUIContext {
 const UIContext = createContext<IUIContext | undefined>(undefined)
 
 interface IUIProviderProps {
-  preload: IPreload
+  preload: IPreload<IUIContext>
   children: ReactNode
 }
 
 function UIProviderComponent({ preload, children }: IUIProviderProps) {
-  const { options } = useBootstrapOptions()
-  const components = preload.read(options) as IUIContext
+  const runtimeOptions = useRuntimeOptions()
+  const components = preload.read(runtimeOptions)
 
   return <UIContext.Provider value={components}>{children}</UIContext.Provider>
 }
@@ -61,8 +62,4 @@ export function createUIComponent<Props = unknown>(component: IComponent) {
     // @ts-ignore
     return <Component {...props} />
   }
-}
-
-function isUndefined(value: any): value is undefined {
-  return typeof value === 'undefined'
 }
