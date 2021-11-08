@@ -3,7 +3,7 @@ import { ModuleHostElement } from '@portals/core'
 import {
   createModule,
   createContext,
-  useBootstrapOptions,
+  useRuntimeOptions,
   IProvider,
   IOnInitHook,
 } from '@portals/react'
@@ -14,8 +14,8 @@ const tag = 'module-element'
 
 describe('[createModuleRender] setup', () => {
   const ModuleComponent = () => {
-    const { options } = useBootstrapOptions()
-    return <div data-testid="component">BaseUrl: {options.baseUrl}</div>
+    const { baseUrl } = useRuntimeOptions()
+    return <div data-testid="component">BaseUrl: {baseUrl}</div>
   }
   const module = createModule({
     moduleTag: tag,
@@ -24,7 +24,7 @@ describe('[createModuleRender] setup', () => {
 
   const render = createModuleRender({
     module,
-    defaultBootstrapOptions: { baseUrl: '/default' },
+    defaultRuntimeOptions: { baseUrl: '/default' },
   })
 
   test('should add host element to the DOM', () => {
@@ -44,8 +44,8 @@ describe('[createModuleRender] setup', () => {
 
 describe('[createModuleRender] module', () => {
   const ModuleComponent = () => {
-    const { options } = useBootstrapOptions()
-    return <div data-testid="component">BaseUrl: {options.baseUrl}</div>
+    const { baseUrl } = useRuntimeOptions()
+    return <div data-testid="component">BaseUrl: {baseUrl}</div>
   }
   const module = createModule({
     moduleTag: tag,
@@ -54,7 +54,7 @@ describe('[createModuleRender] module', () => {
 
   const render = createModuleRender({
     module,
-    defaultBootstrapOptions: { baseUrl: '/default' },
+    defaultRuntimeOptions: { baseUrl: '/default' },
   })
 
   test('should render provided module', async () => {
@@ -64,13 +64,13 @@ describe('[createModuleRender] module', () => {
     expect(component).toBeInstanceOf(HTMLDivElement)
   })
 
-  test('should set default bootstrap options', async () => {
+  test('should set default runtime options', async () => {
     render()
 
     await screen.findByText('BaseUrl: /default')
   })
 
-  test('should allow to overwrite default bootstrap options', async () => {
+  test('should allow to overwrite default runtime options', async () => {
     render({ baseUrl: '/overwrite' })
 
     await screen.findByText('BaseUrl: /overwrite')
@@ -135,7 +135,7 @@ describe('[createModuleRender] with Providers', () => {
     module,
     defaultAppProvider: AppProvider,
     defaultModuleProvider: ModuleProvider,
-    defaultBootstrapOptions: { baseUrl: '/' },
+    defaultRuntimeOptions: { baseUrl: '/' },
   })
 
   test('should render default providers', async () => {

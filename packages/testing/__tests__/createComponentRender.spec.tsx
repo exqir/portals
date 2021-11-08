@@ -1,16 +1,16 @@
 import { screen } from '@testing-library/react'
-import { createContext, useBootstrapOptions, IProvider } from '@portals/react'
+import { createContext, useRuntimeOptions, IProvider } from '@portals/react'
 
 import { createComponentRender } from '../src/createComponentRender'
 
 describe('[createComponentRender] module', () => {
   const ModuleComponent = () => {
-    const { options } = useBootstrapOptions()
-    return <div data-testid="component">BaseUrl: {options.baseUrl}</div>
+    const { baseUrl } = useRuntimeOptions()
+    return <div data-testid="component">BaseUrl: {baseUrl}</div>
   }
 
   const render = createComponentRender({
-    defaultBootstrapOptions: { baseUrl: '/default' },
+    defaultRuntimeOptions: { baseUrl: '/default' },
   })
 
   test('should render provided module', async () => {
@@ -58,7 +58,7 @@ describe('[createModuleRender] with Providers', () => {
   const render = createComponentRender({
     defaultAppProvider: AppProvider,
     defaultModuleProvider: ModuleProvider,
-    defaultBootstrapOptions: { baseUrl: '/default' },
+    defaultRuntimeOptions: { baseUrl: '/default' },
   })
 
   test('should render default providers', async () => {

@@ -1,19 +1,23 @@
-import type { IBootstrapOptions, IProvider } from '@portals/react'
+import type { IRuntimeOptions, IProvider } from '@portals/react'
 import { render as tlrRender } from '@testing-library/react'
 import { createCustomElements, getModulesTree, isFunction } from '@portals/core'
 import { createModule } from '@portals/react'
 import { App, NoopComponent, NoopProvider } from '@portals/react/testing'
 
+const usecaseOptions = {
+  Loading: NoopComponent,
+  Error: NoopComponent,
+}
 interface ICreateModuleRenderOptions {
   module: ReturnType<typeof createModule>
-  defaultBootstrapOptions: IBootstrapOptions
+  defaultRuntimeOptions: IRuntimeOptions
   defaultAppProvider?: IProvider
   defaultModuleProvider?: IProvider
 }
 
 export function createModuleRender({
   module,
-  defaultBootstrapOptions,
+  defaultRuntimeOptions,
   defaultAppProvider = NoopProvider,
   defaultModuleProvider = NoopProvider,
 }: ICreateModuleRenderOptions) {
@@ -41,27 +45,30 @@ export function createModuleRender({
 
   return (
     options?: Partial<
-      IBootstrapOptions & { AppProvider: IProvider; ModuleProvider: IProvider }
+      IRuntimeOptions & { AppProvider: IProvider; ModuleProvider: IProvider }
     >,
   ) => {
     const {
       AppProvider = defaultAppProvider,
       ModuleProvider = defaultModuleProvider,
-      ...bootstrapOptions
+      ...runtimeOptions
     } = options ?? {}
 
     const combinedOptions = {
       Loading: NoopComponent,
       Error: NoopComponent,
-      ...defaultBootstrapOptions,
-      ...bootstrapOptions,
+      ...defaultRuntimeOptions,
+      ...runtimeOptions,
     }
 
     if (AppProvider && isFunction(AppProvider.preload)) {
-      AppProvider.preload(combinedOptions)
+      AppProvider.preload({ runtimeOptions: combinedOptions, usecaseOptions })
     }
     if (ModuleProvider && isFunction(ModuleProvider.preload)) {
-      ModuleProvider.preload(combinedOptions)
+      ModuleProvider.preload({
+        runtimeOptions: combinedOptions,
+        usecaseOptions,
+      })
     }
 
     document.body.innerHTML = `<div id="root"></div><${moduleTag}></${moduleTag}>`
@@ -76,7 +83,8 @@ export function createModuleRender({
         modulesTree={modulesTree}
         AppProvider={AppProvider}
         ModuleProvider={ModuleProvider}
-        options={combinedOptions}
+        runtimeOptions={combinedOptions}
+        usecaseOptions={usecaseOptions}
       />,
       { container },
     )

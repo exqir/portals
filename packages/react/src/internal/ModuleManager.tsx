@@ -4,7 +4,7 @@ import React, { Suspense, useEffect } from 'react'
 import type { IOnInitHook } from '../types/definitions'
 import { useModuleStatus } from '../provider/LoadingStatusProvider'
 import { useHost } from '../provider/HostProvider'
-import { useBootstrapOptions } from '../provider/BootstrapOptionsProvider'
+import { useUsecaseOptions } from '../provider/OptionProviders'
 
 interface IModuleLoaderProps<Payload = unknown> {
   useInit: IOnInitHook<Payload>
@@ -17,7 +17,7 @@ export function ModuleManager<Payload>({
   module: Module,
   ...props
 }: IModuleLoaderProps<Payload>): ReactElement {
-  const { options } = useBootstrapOptions()
+  const { Loading, Error } = useUsecaseOptions()
   const { host } = useHost()
   const { data, error, loading } = useInit()
 
@@ -31,11 +31,11 @@ export function ModuleManager<Payload>({
   }, [setError, setLoading, setLoaded, error, loading])
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<Loading />}>
       {loading ? (
-        <options.Loading />
+        <Loading />
       ) : error ? (
-        <options.Error />
+        <Error />
       ) : (
         <Module data={data} {...props} />
       )}

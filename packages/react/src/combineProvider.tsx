@@ -1,4 +1,8 @@
-import type { IBootstrapOptions, IProvider } from './types/definitions'
+import type {
+  IRuntimeOptions,
+  IUseCaseOptions,
+  IProvider,
+} from './types/definitions'
 import type { ReactElement } from 'react'
 import React from 'react'
 import { isFunction } from '@portals/core'
@@ -16,7 +20,10 @@ export function combineProvider(provider: IProvider[]): IProvider {
         children,
       ) as ReactElement
 
-    Provider.preload = function combinedPreload(options: IBootstrapOptions) {
+    Provider.preload = function combinedPreload(options: {
+      runtimeOptions: IRuntimeOptions
+      usecaseOptions: IUseCaseOptions
+    }) {
       provider
         .filter(({ preload }) => isFunction(preload))
         .forEach(({ preload }) => {

@@ -1,28 +1,34 @@
-import type { IBootstrapOptions, IProvider } from '@portals/react'
+import type { IRuntimeOptions, IProvider } from '@portals/react'
 import { FunctionComponent, ReactElement, Suspense } from 'react'
 import { render as tlrRender } from '@testing-library/react'
 import { isFunction } from '@portals/core'
 import {
-  BootstrapOptionsProvider,
+  RuntimeOptionsProvider,
+  UsecaseOptionsProvider,
   NoopComponent,
   NoopProvider,
 } from '@portals/react/testing'
 
+const usecaseOptions = {
+  Loading: NoopComponent,
+  Error: NoopComponent,
+}
+
 interface ICreateComponentRenderOptions {
   defaultAppProvider?: IProvider
   defaultModuleProvider?: IProvider
-  defaultBootstrapOptions: IBootstrapOptions
+  defaultRuntimeOptions: IRuntimeOptions
 }
 
 export function createComponentRender({
   defaultAppProvider = NoopProvider,
   defaultModuleProvider = NoopProvider,
-  defaultBootstrapOptions,
+  defaultRuntimeOptions,
 }: ICreateComponentRenderOptions) {
   return (
     ui: ReactElement,
     options?: Partial<
-      IBootstrapOptions & { AppProvider: IProvider; ModuleProvider: IProvider }
+      IRuntimeOptions & { AppProvider: IProvider; ModuleProvider: IProvider }
     >,
   ) => {
     const {
@@ -32,27 +38,30 @@ export function createComponentRender({
     } = options ?? {}
 
     const combinedOptions = {
-      Loading: NoopComponent,
-      Error: NoopComponent,
-      ...defaultBootstrapOptions,
+      ...defaultRuntimeOptions,
       ...bootstrapOptions,
     }
 
     if (AppProvider && isFunction(AppProvider.preload)) {
-      AppProvider.preload(combinedOptions)
+      AppProvider.preload({ runtimeOptions: combinedOptions, usecaseOptions })
     }
     if (ModuleProvider && isFunction(ModuleProvider.preload)) {
-      ModuleProvider.preload(combinedOptions)
+      ModuleProvider.preload({
+        runtimeOptions: combinedOptions,
+        usecaseOptions,
+      })
     }
 
     const Wrapper: FunctionComponent = ({ children }) => (
-      <BootstrapOptionsProvider options={combinedOptions}>
-        <Suspense fallback={null}>
-          <AppProvider>
-            <ModuleProvider>{children}</ModuleProvider>
-          </AppProvider>
-        </Suspense>
-      </BootstrapOptionsProvider>
+      <UsecaseOptionsProvider {...usecaseOptions}>
+        <RuntimeOptionsProvider {...combinedOptions}>
+          <Suspense fallback={null}>
+            <AppProvider>
+              <ModuleProvider>{children}</ModuleProvider>
+            </AppProvider>
+          </Suspense>
+        </RuntimeOptionsProvider>
+      </UsecaseOptionsProvider>
     )
 
     return tlrRender(ui, { wrapper: Wrapper })

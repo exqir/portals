@@ -4,7 +4,7 @@ import {
   createModule,
   createUseCase,
   createContext,
-  useBootstrapOptions,
+  useRuntimeOptions,
   IProvider,
   IOnInitHook,
 } from '@portals/react'
@@ -29,24 +29,24 @@ const ModuleProvider: IProvider = ({ children }) => (
 )
 
 const ModuleComponent1 = ({ data }: { data: string }) => {
-  const { options } = useBootstrapOptions()
+  const { baseUrl } = useRuntimeOptions()
   const appData = useApp()
   const moduleData = useModule()
   return (
     <>
       <div>Module 1: {data}</div>
-      <div>BaseUrl 1: {options.baseUrl}</div>
+      <div>BaseUrl 1: {baseUrl}</div>
       <div>Provider 1: {appData.provider}</div>
       <div>Provider 1: {moduleData.provider}</div>
     </>
   )
 }
 const ModuleComponent2 = ({ data }: { data: string }) => {
-  const { options } = useBootstrapOptions()
+  const { baseUrl } = useRuntimeOptions()
   return (
     <>
       <div>Module 2: {data}</div>
-      <div>BaseUrl 2: {options.baseUrl}</div>
+      <div>BaseUrl 2: {baseUrl}</div>
     </>
   )
 }
@@ -67,7 +67,7 @@ describe('[createUseCaseRender] setup', () => {
   const render = createUseCaseRender({
     useCase,
     defaultMarkup: `<module-element-1></module-element-1>`,
-    defaultBootstrapOptions: { baseUrl: '/default' },
+    defaultRuntimeOptions: { baseUrl: '/default' },
   })
 
   test('should add default markup to the DOM', () => {
@@ -95,7 +95,7 @@ describe('[createUseCaseRender] modules', () => {
   const render = createUseCaseRender({
     useCase,
     defaultMarkup: `<module-element-1></module-element-1>`,
-    defaultBootstrapOptions: { baseUrl: '/default' },
+    defaultRuntimeOptions: { baseUrl: '/default' },
   })
 
   test('should render modules in defaultMarkup', async () => {
@@ -121,13 +121,13 @@ describe('[createUseCaseRender] modules', () => {
     await screen.findByText('Provider 1: Module')
   })
 
-  test('should set default bootstrap options', async () => {
+  test('should set default runtime options', async () => {
     render()
 
     await screen.findByText('BaseUrl 1: /default')
   })
 
-  test('should allow to overwrite default bootstrap options', async () => {
+  test('should allow to overwrite default runtime options', async () => {
     render({ baseUrl: '/overwrite' })
 
     await screen.findByText('BaseUrl 1: /overwrite')

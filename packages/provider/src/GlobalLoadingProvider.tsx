@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
-import { useBootstrapOptions, useGlobalLoadingStatus } from '@portals/react'
+import { useUsecaseOptions, useGlobalLoadingStatus } from '@portals/react'
 
 interface GlobalLoadingProviderProps {
   children: ReactNode
@@ -12,7 +12,7 @@ export function GlobalLoadingProvider({
   children,
 }: GlobalLoadingProviderProps) {
   const host = useRef<HTMLDivElement>()
-  const { options } = useBootstrapOptions()
+  const { Loading, Error } = useUsecaseOptions()
   const { isLoading, hasError } = useGlobalLoadingStatus()
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function GlobalLoadingProvider({
                 zIndex: 100,
               }}
             >
-              {hasError ? <options.Error /> : <options.Loading />}
+              {hasError ? <Error /> : <Loading />}
             </div>,
             host.current,
           )

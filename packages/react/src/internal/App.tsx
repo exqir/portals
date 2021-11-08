@@ -5,12 +5,15 @@ import React, { Suspense } from 'react'
 import type {
   IModulesMap,
   IProvider,
-  IBootstrapOptions,
+  IRuntimeOptions,
   IUseCaseOptions,
   IModuleDefinition,
 } from '../types/definitions'
 import { LoadingStatusProvider } from '../provider/LoadingStatusProvider'
-import { BootstrapOptionsProvider } from '../provider/BootstrapOptionsProvider'
+import {
+  RuntimeOptionsProvider,
+  UsecaseOptionsProvider,
+} from '../provider/OptionProviders'
 import { HostProvider, useHost } from '../provider/HostProvider'
 import { ChildrenProvider } from './Children'
 import { Host } from './Host'
@@ -19,34 +22,38 @@ import { NoopProvider } from './utils'
 interface IAppProps {
   modulesTree: IModulesRoot
   modules: IModulesMap
+  runtimeOptions: IRuntimeOptions
+  usecaseOptions: IUseCaseOptions
   AppProvider?: IProvider
   ModuleProvider?: IProvider
-  options: IBootstrapOptions & IUseCaseOptions
 }
 
 export function App({
   modulesTree,
   modules,
+  runtimeOptions,
+  usecaseOptions,
   AppProvider = NoopProvider,
   ModuleProvider = NoopProvider,
-  options,
 }: IAppProps) {
   return (
-    <BootstrapOptionsProvider options={options}>
-      <LoadingStatusProvider modulesTree={modulesTree}>
-        <Suspense fallback={null}>
-          <AppProvider
-            children={buildModulesTree(
-              modulesTree.children,
-              ModuleProvider,
-              Module,
-              modules,
-              true,
-            )}
-          />
-        </Suspense>
-      </LoadingStatusProvider>
-    </BootstrapOptionsProvider>
+    <UsecaseOptionsProvider {...usecaseOptions}>
+      <RuntimeOptionsProvider {...runtimeOptions}>
+        <LoadingStatusProvider modulesTree={modulesTree}>
+          <Suspense fallback={null}>
+            <AppProvider
+              children={buildModulesTree(
+                modulesTree.children,
+                ModuleProvider,
+                Module,
+                modules,
+                true,
+              )}
+            />
+          </Suspense>
+        </LoadingStatusProvider>
+      </RuntimeOptionsProvider>
+    </UsecaseOptionsProvider>
   )
 }
 

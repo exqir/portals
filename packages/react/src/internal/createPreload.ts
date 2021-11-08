@@ -1,9 +1,5 @@
-import type { IBootstrapOptions } from '../types/definitions'
+import type { IPreloadFunction } from '../types/definitions'
 import { createAsset } from 'use-asset'
-
-type IPreloadFunction<Payload> = (
-  options: IBootstrapOptions,
-) => Promise<Payload>
 
 export type IPreload = ReturnType<typeof createAsset>
 

@@ -22,24 +22,27 @@ export interface IProviderOptions<Props = unknown, Payload = unknown> {
 }
 
 export { IPreload }
+
+export interface IPreloadOptions {
+  runtimeOptions: IRuntimeOptions
+  usecaseOptions: IUseCaseOptions
+}
 export interface IProvider<Props = unknown> {
   (
     props: Props & { preload?: IPreload; children: ReactNode },
   ): ReactElement | null
-  preload?: (options: IBootstrapOptions) => void
+  preload?: (options: IPreloadOptions) => void
 }
 
-export interface IBootstrapOptions {
+export interface IRuntimeOptions {
   baseUrl: string
   [key: string]: unknown
 }
 export interface IUseCaseOptions {
-  // TODO: Make these optinal. They are set to a NoopFunction otherwise
   Loading: ComponentType
   Error: ComponentType
-  [key: string]: unknown
 }
 
-type IPreloadFunction<Payload> = (
-  options: IBootstrapOptions,
+export type IPreloadFunction<Payload> = (
+  options: IPreloadOptions,
 ) => Promise<Payload>

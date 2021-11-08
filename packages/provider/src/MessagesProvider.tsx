@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import React, { useEffect, useState } from 'react'
-import { useBootstrapOptions, createContext } from '@portals/react'
+import { useRuntimeOptions, createContext } from '@portals/react'
 
 import { useLocale } from './LocaleProvider'
 
@@ -22,16 +22,16 @@ interface MessagesProviderProps {
 }
 
 export function MessagesProvider({ children }: MessagesProviderProps) {
-  const { options } = useBootstrapOptions()
+  const { baseUrl } = useRuntimeOptions()
   const [messages, setMessages] = useState({})
   const { locale } = useLocale()
   const language = getLanguage(locale)
 
   useEffect(() => {
-    fetch(`${options.baseUrl}/${language}.json`)
-      .then(m => m.json())
-      .then(m => setMessages(m))
-  }, [language, options])
+    fetch(`${baseUrl}/${language}.json`)
+      .then((m) => m.json())
+      .then((m) => setMessages(m))
+  }, [language, baseUrl])
 
   return <Provider messages={messages}>{children}</Provider>
 }

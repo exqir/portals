@@ -3,10 +3,10 @@ import { screen, render as tlrRender } from '@testing-library/react'
 import { ModuleHostElement, MODULE_STATUS } from '@portals/core'
 
 import type {
-  IBootstrapOptions,
+  IRuntimeOptions,
   IUseCaseOptions,
 } from '../../src/types/definitions'
-import { BootstrapOptionsProvider } from '../../src/provider/BootstrapOptionsProvider'
+import { UsecaseOptionsProvider } from '../../src/provider/OptionProviders'
 import { HostProvider } from '../../src/provider/HostProvider'
 import { LoadingStatusProvider } from '../../src/provider/LoadingStatusProvider'
 
@@ -18,7 +18,7 @@ beforeAll(() => {
 
 const render = (
   element: ReactElement,
-  options?: Partial<IBootstrapOptions & IUseCaseOptions>,
+  options?: Partial<IRuntimeOptions & IUseCaseOptions>,
 ) => {
   const host = new ModuleHostElement()
   const tree = {
@@ -27,18 +27,15 @@ const render = (
   }
 
   const queries = tlrRender(
-    <BootstrapOptionsProvider
-      options={{
-        baseUrl: './',
-        Loading: () => <></>,
-        Error: () => <></>,
-        ...options,
-      }}
+    <UsecaseOptionsProvider
+      Loading={() => <></>}
+      Error={() => <></>}
+      {...options}
     >
       <LoadingStatusProvider modulesTree={tree}>
         <HostProvider host={host}>{element}</HostProvider>
       </LoadingStatusProvider>
-    </BootstrapOptionsProvider>,
+    </UsecaseOptionsProvider>,
   )
 
   return { host, ...queries }

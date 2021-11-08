@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react'
-import type { IBootstrapOptions, IPreload } from '@portals/react'
+import type { IRuntimeOptions, IPreload } from '@portals/react'
 import React, { createContext, useContext } from 'react'
 import { createProvider, useBootstrapOptions } from '@portals/react'
 
@@ -24,7 +24,7 @@ function UIProviderComponent({ preload, children }: IUIProviderProps) {
   return <UIContext.Provider value={components}>{children}</UIContext.Provider>
 }
 
-function loadUIImplementation({ ui }: IBootstrapOptions): Promise<IUIContext> {
+function loadUIImplementation({ ui }: IRuntimeOptions): Promise<IUIContext> {
   if (typeof ui !== 'string') {
     console.warn(
       'Usage of the UI Layer requires to provide a ui value during bootstraping.',

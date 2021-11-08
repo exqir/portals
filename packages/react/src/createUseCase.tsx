@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom'
 import { isFunction, createCustomElements, getModulesTree } from '@portals/core'
 
 import type {
-  IBootstrapOptions,
+  IRuntimeOptions,
   IUseCaseOptions,
   IModuleDefinition,
   IProvider,
@@ -26,34 +26,47 @@ export function createUseCase({
   modules,
   AppProvider,
   ModuleProvider,
-  options: useCaseOptions = {
+  options: usecaseOptions,
+}: IUseCase) {
+  const usecaseOptionsWithDefaults: IUseCaseOptions = {
     Loading: NoopComponent,
     Error: NoopComponent,
-  },
-}: IUseCase) {
+    ...usecaseOptions,
+  }
+
   return {
-    bootstrap: (options: IBootstrapOptions) =>
-      // Can the type cast be avoided?
-      bootstrap(
+    bootstrap: (options: IRuntimeOptions) =>
+      bootstrap({
         modules,
-        { ...(useCaseOptions as IUseCaseOptions), ...options },
+        runtimeOptions: options,
+        usecaseOptions: usecaseOptionsWithDefaults,
         AppProvider,
         ModuleProvider,
-      ),
+      }),
     modules,
     AppProvider,
     ModuleProvider,
-    useCaseOptions: useCaseOptions as IUseCaseOptions,
+    usecaseOptions: usecaseOptionsWithDefaults,
   }
 }
 
-function render(
-  modules: IModules,
-  modulesTree: IModulesRoot,
-  options: IBootstrapOptions & IUseCaseOptions,
-  AppProvider?: IProvider,
-  ModuleProvider?: IProvider,
-) {
+interface IRenderOptions {
+  modules: IModules
+  modulesTree: IModulesRoot
+  runtimeOptions: IRuntimeOptions
+  usecaseOptions: IUseCaseOptions
+  AppProvider?: IProvider
+  ModuleProvider?: IProvider
+}
+
+function render({
+  modules,
+  modulesTree,
+  runtimeOptions,
+  usecaseOptions,
+  AppProvider,
+  ModuleProvider,
+}: IRenderOptions) {
   // We don't need to add the rootElement to the DOM
   // because all top-level elements will be rendered
   // to the host custom-elements that are already in
@@ -66,28 +79,45 @@ function render(
         modules={modules}
         AppProvider={AppProvider}
         ModuleProvider={ModuleProvider}
-        options={options}
+        runtimeOptions={runtimeOptions}
+        usecaseOptions={usecaseOptions}
       />
     </StrictMode>,
     rootElement,
   )
 }
 
-function bootstrap(
-  modules: IModules,
-  options: IBootstrapOptions & IUseCaseOptions,
-  AppProvider?: IProvider,
-  ModuleProvider?: IProvider,
-) {
+interface IBootstrap {
+  modules: IModules
+  runtimeOptions: IRuntimeOptions
+  usecaseOptions: IUseCaseOptions
+  AppProvider?: IProvider
+  ModuleProvider?: IProvider
+}
+
+function bootstrap({
+  modules,
+  runtimeOptions,
+  usecaseOptions,
+  AppProvider,
+  ModuleProvider,
+}: IBootstrap) {
   createCustomElements(Array.from(modules.keys()))
   const modulesTree = getModulesTree()
 
   if (AppProvider && isFunction(AppProvider.preload)) {
-    AppProvider.preload(options)
+    AppProvider.preload({ runtimeOptions, usecaseOptions })
   }
   if (ModuleProvider && isFunction(ModuleProvider.preload)) {
-    ModuleProvider.preload(options)
+    ModuleProvider.preload({ runtimeOptions, usecaseOptions })
   }
 
-  render(modules, modulesTree, options, AppProvider, ModuleProvider)
+  render({
+    modules,
+    modulesTree,
+    runtimeOptions,
+    usecaseOptions,
+    AppProvider,
+    ModuleProvider,
+  })
 }

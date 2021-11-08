@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react'
 import { Suspense } from 'react'
 import { screen, render as tlrRender } from '@testing-library/react'
-import { ModuleHostElement, createCustomElements } from '@portals/core'
+import { ModuleHostElement } from '@portals/core'
 
-import { BootstrapOptionsProvider } from '../../src/provider/BootstrapOptionsProvider'
+import { UsecaseOptionsProvider } from '../../src/provider/OptionProviders'
 import { HostProvider } from '../../src/provider/HostProvider'
 import { LoadingStatusProvider } from '../../src/provider/LoadingStatusProvider'
 
@@ -11,7 +11,6 @@ import { createLoadableComponent } from '../../src/internal/createLoadableCompon
 
 beforeAll(() => {
   customElements.define('module-element', ModuleHostElement)
-  // createCustomElements(['module-element'])
 })
 
 const render = (element: ReactElement) => {
@@ -22,19 +21,13 @@ const render = (element: ReactElement) => {
   }
 
   const queries = tlrRender(
-    <BootstrapOptionsProvider
-      options={{
-        baseUrl: './',
-        Loading: () => <></>,
-        Error: () => <></>,
-      }}
-    >
+    <UsecaseOptionsProvider Loading={() => <></>} Error={() => <></>}>
       <HostProvider host={host}>
         <LoadingStatusProvider modulesTree={tree}>
           <Suspense fallback={'Suspense'}>{element}</Suspense>
         </LoadingStatusProvider>
       </HostProvider>
-    </BootstrapOptionsProvider>,
+    </UsecaseOptionsProvider>,
   )
 
   return { host, ...queries }

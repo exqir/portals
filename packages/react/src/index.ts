@@ -1,6 +1,7 @@
 export type {
-  IBootstrapOptions,
+  IRuntimeOptions,
   IPreload,
+  IPreloadOptions,
   IProvider,
   IModuleDefinition,
   IOnInitHook,
@@ -23,5 +24,8 @@ export { createModule } from './createModule'
 export { createProvider, createContext } from './createProvider'
 export { createUseCase } from './createUseCase'
 
-export { useBootstrapOptions } from './useBootstrapOptions'
-export { useHost } from './useHost'
+export {
+  useRuntimeOptions,
+  useUsecaseOptions,
+} from './provider/OptionProviders'
+export { useHost } from './provider/HostProvider'
