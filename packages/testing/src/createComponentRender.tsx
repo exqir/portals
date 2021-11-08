@@ -43,13 +43,10 @@ export function createComponentRender({
     }
 
     if (AppProvider && isFunction(AppProvider.preload)) {
-      AppProvider.preload({ runtimeOptions: combinedOptions, usecaseOptions })
+      AppProvider.preload(combinedOptions)
     }
     if (ModuleProvider && isFunction(ModuleProvider.preload)) {
-      ModuleProvider.preload({
-        runtimeOptions: combinedOptions,
-        usecaseOptions,
-      })
+      ModuleProvider.preload(combinedOptions)
     }
 
     const Wrapper: FunctionComponent = ({ children }) => (

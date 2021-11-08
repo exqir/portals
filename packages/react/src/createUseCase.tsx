@@ -106,10 +106,10 @@ function bootstrap({
   const modulesTree = getModulesTree()
 
   if (AppProvider && isFunction(AppProvider.preload)) {
-    AppProvider.preload({ runtimeOptions, usecaseOptions })
+    AppProvider.preload(runtimeOptions)
   }
   if (ModuleProvider && isFunction(ModuleProvider.preload)) {
-    ModuleProvider.preload({ runtimeOptions, usecaseOptions })
+    ModuleProvider.preload(runtimeOptions)
   }
 
   render({

@@ -1,10 +1,15 @@
-import type { IPreloadFunction } from '../types/definitions'
+import { IPreloadFunction, IPreloadOptions } from '../types/definitions'
 import { createAsset } from 'use-asset'
 
-export type IPreload = ReturnType<typeof createAsset>
+export interface IPreload<Payload> {
+  preload: (options: IPreloadOptions) => void
+  read: (options: IPreloadOptions) => Payload
+  clear: (options: IPreloadOptions) => void
+  peek: (options: IPreloadOptions) => void | Payload
+}
 
 export function createPreload<Payload>(
   fn: IPreloadFunction<Payload>,
-): IPreload {
+): IPreload<Payload> {
   return createAsset(fn)
 }

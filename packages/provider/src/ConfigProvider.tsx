@@ -22,14 +22,14 @@ const ConfigContext = createContext<IConfigContext>({
 })
 
 interface IConfigProviderProps {
-  preload: IPreload
+  preload: IPreload<IConfig>
   children: ReactNode
 }
 
 function ConfigProviderComponent({ preload, children }: IConfigProviderProps) {
   const { moduleTag } = useHost()
-  const { baseUrl } = useRuntimeOptions()
-  const gc = preload.read({ baseUrl }) as IConfig
+  const runtimeOptions = useRuntimeOptions()
+  const gc = preload.read(runtimeOptions) as IConfig
   const [config] = useState(extractModuleConfig(gc, moduleTag))
 
   return (
@@ -39,8 +39,8 @@ function ConfigProviderComponent({ preload, children }: IConfigProviderProps) {
   )
 }
 
-function loadConfig({ runtimeOptions }: IPreloadOptions): Promise<IConfig> {
-  return fetch(`${runtimeOptions.baseUrl}/config.json`).then((r) => r.json())
+function loadConfig({ baseUrl }: IPreloadOptions): Promise<IConfig> {
+  return fetch(`${baseUrl}/config.json`).then((r) => r.json())
 }
 
 export const ConfigProvider = createProvider({

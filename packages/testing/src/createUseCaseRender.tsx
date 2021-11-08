@@ -40,13 +40,10 @@ export function createUseCaseRender({
     }
 
     if (AppProvider && isFunction(AppProvider.preload)) {
-      AppProvider.preload({ runtimeOptions: combinedOptions, usecaseOptions })
+      AppProvider.preload(combinedOptions)
     }
     if (ModuleProvider && isFunction(ModuleProvider.preload)) {
-      ModuleProvider.preload({
-        runtimeOptions: combinedOptions,
-        usecaseOptions,
-      })
+      ModuleProvider.preload(combinedOptions)
     }
 
     document.body.innerHTML = `<div id="root"></div>${markup ?? defaultMarkup}`

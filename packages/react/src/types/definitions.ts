@@ -23,13 +23,10 @@ export interface IProviderOptions<Props = unknown, Payload = unknown> {
 
 export { IPreload }
 
-export interface IPreloadOptions {
-  runtimeOptions: IRuntimeOptions
-  usecaseOptions: IUseCaseOptions
-}
-export interface IProvider<Props = unknown> {
+export type IPreloadOptions = IRuntimeOptions
+export interface IProvider<Props = unknown, Payload = unknown> {
   (
-    props: Props & { preload?: IPreload; children: ReactNode },
+    props: Props & { preload?: IPreload<Payload>; children: ReactNode },
   ): ReactElement | null
   preload?: (options: IPreloadOptions) => void
 }
