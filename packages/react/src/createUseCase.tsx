@@ -29,6 +29,7 @@ export function createUseCase({
   options: usecaseOptions,
 }: IUseCase) {
   const usecaseOptionsWithDefaults: IUseCaseOptions = {
+    routeElementTag: 'route-element',
     Loading: NoopComponent,
     Error: NoopComponent,
     ...usecaseOptions,
@@ -102,7 +103,10 @@ function bootstrap({
   AppProvider,
   ModuleProvider,
 }: IBootstrap) {
-  createCustomElements(Array.from(modules.keys()))
+  createCustomElements(
+    Array.from(modules.keys()),
+    usecaseOptions.routeElementTag,
+  )
   const modulesTree = getModulesTree()
 
   if (AppProvider && isFunction(AppProvider.preload)) {

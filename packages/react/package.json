@@ -16,12 +16,9 @@
   },
   "dependencies": {
     "@portals/core": "0.0.1",
+    "react-router-dom": "^6.0.1",
     "tslib": "^2.2.0",
-    "use-asset": "^1.0.4",
-    "use-subscription": "1.5.1"
-  },
-  "devDependencies": {
-    "@types/use-subscription": "^1.0.0"
+    "use-asset": "^1.0.4"
   },
   "publishConfig": {
     "access": "public"

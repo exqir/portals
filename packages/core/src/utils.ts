@@ -1,4 +1,5 @@
 import type { ModuleHostElement } from './ModuleHostElement'
+import type { RouteElement } from './RouteElement'
 
 export function noop() {}
 
@@ -22,6 +23,10 @@ export function isModuleHostElement(
   element: Element,
 ): element is ModuleHostElement {
   return element && Object.prototype.hasOwnProperty.call(element, 'moduleId')
+}
+
+export function isRouteElement(element: Element): element is RouteElement {
+  return element && Object.prototype.hasOwnProperty.call(element, 'path')
 }
 
 export function getAttribute(

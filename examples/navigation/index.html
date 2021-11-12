@@ -12,12 +12,16 @@
       <h1>Rick and Morty</h1>
     </div>
     <navigation-bar></navigation-bar>
-    <view-module name="data-fetching">
+    <route-element path="/">
       <data-fetching></data-fetching>
-    </view-module>
-    <view-module name="static">
-      <static-content></static-content>
-    </view-module>
+    </route-element>
+    <route-element path="static/*">
+      <static-content>
+        <route-element path="child">
+          <static-child></static-child>
+        </route-element>
+      </static-content>
+    </route-element>
     <script type="module" src="/src/entry.tsx"></script>
   </body>
 </html>

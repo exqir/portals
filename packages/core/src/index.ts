@@ -8,6 +8,7 @@ export {
   identity,
   isFunction,
   isModuleHostElement,
+  isRouteElement,
   isUndefined,
   isNull,
   noop,

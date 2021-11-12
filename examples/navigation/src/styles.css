@@ -94,11 +94,13 @@ nav {
 }
 
 .button {
+  display: inline-block;
   position: relative;
   border-radius: 5px;
   padding: 0.5rem;
   background-color: var(--background-button);
   color: var(--text-color);
+  text-decoration: none;
 }
 
 .button.active {

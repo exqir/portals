@@ -29,3 +29,11 @@ export {
   useUsecaseOptions,
 } from './provider/OptionProviders'
 export { useHost } from './provider/HostProvider'
+
+export {
+  Link,
+  NavLink,
+  useActivePath,
+  usePathStatus,
+  useRouting,
+} from './provider/RoutingProvider'

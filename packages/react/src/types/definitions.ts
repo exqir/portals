@@ -36,6 +36,7 @@ export interface IRuntimeOptions {
   [key: string]: unknown
 }
 export interface IUseCaseOptions {
+  routeElementTag: string
   Loading: ComponentType
   Error: ComponentType
 }

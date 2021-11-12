@@ -1,6 +1,5 @@
 import type { ModuleHostElement } from './ModuleHostElement'
 import { ID_ATTRIBUTE } from './ModuleHostElement'
-import { getAttribute, isModuleHostElement } from './utils'
 
 export interface IModulesRoot {
   element: null
@@ -10,32 +9,6 @@ export interface IModulesRoot {
 export interface IModulesNode {
   element: ModuleHostElement
   children: IModulesNode[]
-}
-
-type IModulesTree<T> = T extends ModuleHostElement ? IModulesNode : IModulesRoot
-
-export function getModulesTreeWithNotSelector<
-  T extends Element | ModuleHostElement,
->(parent: T): IModulesTree<T>
-export function getModulesTreeWithNotSelector(
-  parent: Element | ModuleHostElement,
-): IModulesRoot | IModulesNode {
-  const selectors = [`[${ID_ATTRIBUTE}]`, `[${ID_ATTRIBUTE}]`]
-  const parentId = getAttribute(parent, ID_ATTRIBUTE)
-  if (parentId) {
-    selectors.unshift(`[${ID_ATTRIBUTE}="${parentId}"]`)
-  }
-  const notQuery = selectors.join(' ')
-  const elements = parent.querySelectorAll(`[${ID_ATTRIBUTE}]:not(${notQuery})`)
-
-  return {
-    element: isModuleHostElement(parent) ? parent : null,
-    children: Array.from(elements)
-      .filter(isModuleHostElement)
-      .map((e) => {
-        return getModulesTreeWithNotSelector(e)
-      }),
-  }
 }
 
 export function getModulesTree(): IModulesRoot {

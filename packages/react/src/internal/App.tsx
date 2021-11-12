@@ -1,6 +1,8 @@
 import type { IModulesRoot } from '@portals/core'
-import type { ComponentType, ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import React, { Suspense } from 'react'
+import { BrowserRouter } from 'react-router-dom'
+import { isRouteElement } from '@portals/core'
 
 import type {
   IModulesMap,
@@ -15,6 +17,7 @@ import {
   UsecaseOptionsProvider,
 } from '../provider/OptionProviders'
 import { HostProvider, useHost } from '../provider/HostProvider'
+import { Route, PendingNavigation } from '../provider/RoutingProvider'
 import { ChildrenProvider } from './Children'
 import { Host } from './Host'
 import { NoopProvider } from './utils'
@@ -39,44 +42,73 @@ export function App({
   return (
     <UsecaseOptionsProvider {...usecaseOptions}>
       <RuntimeOptionsProvider {...runtimeOptions}>
-        <LoadingStatusProvider modulesTree={modulesTree}>
-          <Suspense fallback={null}>
-            <AppProvider
-              children={buildModulesTree(
-                modulesTree.children,
-                ModuleProvider,
-                Module,
-                modules,
-                true,
-              )}
-            />
-          </Suspense>
-        </LoadingStatusProvider>
+        {/* TODO: Use route basepath from runtimeOptions as basename */}
+        <BrowserRouter>
+          <PendingNavigation>
+            <LoadingStatusProvider modulesTree={modulesTree}>
+              <Suspense fallback={null}>
+                <AppProvider
+                  children={buildModulesTree({
+                    children: modulesTree.children,
+                    ModuleProvider,
+                    modules,
+                    renderToHost: true,
+                  })}
+                />
+              </Suspense>
+            </LoadingStatusProvider>
+          </PendingNavigation>
+        </BrowserRouter>
       </RuntimeOptionsProvider>
     </UsecaseOptionsProvider>
   )
 }
 
-function buildModulesTree(
-  moduleChildren: IModulesRoot['children'],
-  ModuleProvider: IProvider,
-  Module: ComponentType<IModuleProps>,
-  modules: IModulesMap,
+interface BuildModuleTreeOptions {
+  children: IModulesRoot['children']
+  ModuleProvider: IProvider
+  modules: IModulesMap
+  renderToHost?: boolean
+}
+
+function buildModulesTree({
+  children: moduleChildren,
+  ModuleProvider,
+  modules,
   renderToHost = false,
-): ReactElement[] | undefined {
+}: BuildModuleTreeOptions): ReactElement[] | undefined {
   return moduleChildren.map(({ element, children }) => {
+    if (isRouteElement(element)) {
+      return (
+        <HostProvider host={element} key={element.moduleId}>
+          <ModuleProvider>
+            <Route element={element}>
+              {buildModulesTree({
+                children,
+                ModuleProvider,
+                modules,
+                // TODO: Only the first level of route-elements should render their children
+                // directly to their hosts. On following levels they should be rendered via
+                // the Children component to allow the parent modules to controll their placement.
+                renderToHost: true,
+              })}
+            </Route>
+          </ModuleProvider>
+        </HostProvider>
+      )
+    }
+
     return (
       <HostProvider host={element} key={element.moduleId}>
         <ModuleProvider>
           <Module
             renderToHost={renderToHost}
             modules={modules}
-            children={buildModulesTree(
+            children={buildModulesTree({
               children,
               ModuleProvider,
-              Module,
               modules,
-            )}
+            })}
           />
         </ModuleProvider>
       </HostProvider>
