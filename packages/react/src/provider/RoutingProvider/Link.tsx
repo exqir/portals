@@ -17,8 +17,8 @@ export interface LinkProps
 
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
   function LinkWithRef({ onClick, to, target, ...rest }, ref) {
-    let href = useHref(to)
-    let internalOnClick = useLinkClickHandler(to, { target })
+    const href = useHref(to)
+    const internalOnClick = useLinkClickHandler(to, { target })
     function handleClick(
       event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     ) {
@@ -77,7 +77,7 @@ export const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
     const isActive = useActivePath(to, end)
     const isPending = usePendingPath(to)
 
-    let ariaCurrent = isActive ? ariaCurrentProp : undefined
+    const ariaCurrent = isActive ? ariaCurrentProp : undefined
 
     let className: string
     if (isFunction(classNameProp)) {
@@ -97,7 +97,7 @@ export const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
         .join(' ')
     }
 
-    let style = isFunction(styleProp)
+    const style = isFunction(styleProp)
       ? styleProp({ isActive, isPending })
       : styleProp
 
@@ -127,7 +127,8 @@ export function useLinkClickHandler<E extends Element = HTMLAnchorElement>(
 ): (event: React.MouseEvent<E, MouseEvent>) => void {
   const { navigate } = useRouting()
   const location = useLocation()
-  const path = useResolvedPath(to)
+  // const path = useResolvedPath(to)
+  const href = useHref(to)
 
   return React.useCallback(
     (event: React.MouseEvent<E, MouseEvent>) => {
@@ -138,10 +139,10 @@ export function useLinkClickHandler<E extends Element = HTMLAnchorElement>(
       ) {
         event.preventDefault()
 
-        navigate(to)
+        navigate(href)
       }
     },
-    [location, navigate, path, target, to],
+    [location, navigate, href, target, to],
   )
 }
 

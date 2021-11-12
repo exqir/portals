@@ -34,6 +34,6 @@ export {
   Link,
   NavLink,
   useActivePath,
-  usePathStatus,
+  usePendingPath,
   useRouting,
 } from './provider/RoutingProvider'

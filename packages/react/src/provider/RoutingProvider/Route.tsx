@@ -15,7 +15,6 @@ import {
   useChildrenLoadingStatus,
 } from '../LoadingStatusProvider'
 import {
-  usePathStatus,
   useNestedRoute,
   useActivePath,
   usePendingPath,
@@ -55,8 +54,6 @@ export function Route({ element, children }: RouteProps) {
     }
   }, [isActive, host])
 
-  // TODO: Nested routes are no not resolved and trigger an infinite loading
-  // state and therefore never navigate to the next location
   useEffect(() => {
     if (isPending) {
       if (hasError) {
@@ -90,23 +87,30 @@ export function Route({ element, children }: RouteProps) {
     }
   }, [isActive, isPending, children, setHidden])
 
-  console.log('Route', { path, isActive, isPending, hasError, isRendered })
+  console.log('Route', {
+    path,
+    isActive,
+    isPending,
+    hasError,
+    isRendered,
+    location: location.pathname,
+  })
 
   return (
     <Routes>
       <RouterRoute
-        // When the location is pending is has to use the current path
-        // otherwise it will not be rendered by react-router but we needt it
+        // When the navigation is pending is we use a match all path to let
+        // react-router render it regardless of its original path because we need it
         // to be rendered so that the children can update their loading state.
-        path={isPending ? location.pathname + '/*' : element.path}
+        path={isPending ? '*' : element.path}
         element={<>{children}</>}
       />
       {/* This route suppresses the warning that no route in the routes is matching.
-            This is because we wrap every Route in its own Routes component.
-            A Route needs to be a direct child of Routes but our routing element can
-            be anywhere in the modules tree.
-            We also want to allow defining multiple routing elements in the DOM matching
-            the same path.  */}
+          This is because we wrap every Route in its own Routes component.
+          A Route needs to be a direct child of Routes but our routing element can
+          be anywhere in the modules tree.
+          We also want to allow defining multiple routing elements in the DOM matching
+          the same path.  */}
       <RouterRoute path="*" element={null} />
     </Routes>
   )

@@ -115,41 +115,6 @@ export function usePendingPath(path: To) {
   return isPending
 }
 
-export function usePathStatus(path: string) {
-  const location = useLocation()
-  const supportNestedRoutes = path.endsWith('/*')
-  const resolved = useResolvedPath(
-    supportNestedRoutes ? path.substr(0, path.length - 2) : path,
-  )
-  const {
-    state: { nextLocation },
-  } = usePendingContext()
-  const isActive = !isNull(
-    useMatch({ path: resolved.pathname, end: !supportNestedRoutes }),
-  )
-  const isPending = isNull(nextLocation)
-    ? false
-    : !isNull(
-        matchPath(
-          path,
-          typeof nextLocation === 'string'
-            ? nextLocation
-            : nextLocation.pathname ?? location.pathname,
-        ),
-      )
-
-  console.log('usePathStatus', {
-    path,
-    isActive,
-    isPending,
-  })
-
-  return {
-    isActive,
-    isPending,
-  }
-}
-
 export function useNestedRoute(path: To) {
   const { pathname } = useResolvedPath(path)
   const hasNestedRoutes = pathname.endsWith('/*')
