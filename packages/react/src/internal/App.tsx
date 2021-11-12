@@ -52,6 +52,7 @@ export function App({
                     children: modulesTree.children,
                     ModuleProvider,
                     modules,
+                    level: 0,
                     renderToHost: true,
                   })}
                 />
@@ -68,6 +69,7 @@ interface BuildModuleTreeOptions {
   children: IModulesRoot['children']
   ModuleProvider: IProvider
   modules: IModulesMap
+  level: number
   renderToHost?: boolean
 }
 
@@ -75,6 +77,7 @@ function buildModulesTree({
   children: moduleChildren,
   ModuleProvider,
   modules,
+  level,
   renderToHost = false,
 }: BuildModuleTreeOptions): ReactElement[] | undefined {
   return moduleChildren.map(({ element, children }) => {
@@ -87,10 +90,8 @@ function buildModulesTree({
                 children,
                 ModuleProvider,
                 modules,
-                // TODO: Only the first level of route-elements should render their children
-                // directly to their hosts. On following levels they should be rendered via
-                // the Children component to allow the parent modules to controll their placement.
-                renderToHost: true,
+                level: level + 1,
+                renderToHost: level === 0,
               })}
             </Route>
           </ModuleProvider>
@@ -108,6 +109,7 @@ function buildModulesTree({
               children,
               ModuleProvider,
               modules,
+              level: level + 1,
             })}
           />
         </ModuleProvider>
